@@ -1,0 +1,82 @@
+collection_api:
+  provider: "none"
+  endpoint: ""
+  method: "GET"
+  api_key_env: ""
+  auth_header: "Authorization"
+  auth_scheme: "Bearer"
+  headers: {}
+  query_params:
+    query: "{keyword}"
+    region: "{region}"
+  request_body_template: {}
+  response_mapping:
+    items_path: "items"
+    company_name: "company_name"
+    website: "website"
+    country: "country"
+    business_type: "business_type"
+    source_url: "source_url"
+  pagination:
+    mode: "none"
+    page_param: "page"
+    page_size_param: "page_size"
+    page_size: 50
+    max_pages: 1
+  rate_limit:
+    requests_per_minute: 30
+  retry_policy:
+    max_attempts: 3
+    backoff_seconds: 2
+  notes: "Enter none when no collection API is available. If an API is approved later, store the provider, endpoint, and API key environment variable here."
+
+contact_enrichment_api:
+  provider: "none"
+  endpoint: ""
+  method: "GET"
+  api_key_env: ""
+  auth_header: "Authorization"
+  auth_scheme: "Bearer"
+  query_params:
+    domain: "{domain}"
+    company_name: "{company_name}"
+    role: "{role}"
+  request_body_template: {}
+  response_mapping:
+    items_path: "items"
+    name: "name"
+    role: "role"
+    email: "email"
+    source_url: "source_url"
+  rate_limit:
+    requests_per_minute: 20
+  retry_policy:
+    max_attempts: 3
+    backoff_seconds: 2
+
+allowed_sources:
+  - "Google search results"
+  - "Trade show websites"
+  - "Industry directories"
+  - "Prospect company websites"
+  - "LinkedIn public summaries"
+  - "B2B platform public pages"
+
+default_regions:
+  - "United States"
+  - "European Union"
+
+default_exclusions:
+  - "jobs"
+  - "careers"
+  - "consumer review"
+  - "marketplace-only seller"
+
+output_fields:
+  - "company_name"
+  - "website"
+  - "country"
+  - "business_type"
+  - "source_url"
+  - "evidence_summary"
+  - "risk_notes"

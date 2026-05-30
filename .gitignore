@@ -1,0 +1,8 @@
+.env
+*.log
+__pycache__/
+.DS_Store
+profiles/
+data/private/
+exports/
+.hermes-test/

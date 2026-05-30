@@ -1,0 +1,36 @@
+{
+  "quotation_status": "draft",
+  "quotation_number": "Q-2026-001",
+  "buyer": {
+    "name": "Demo Outdoor Inc.",
+    "country": "United States"
+  },
+  "seller": {
+    "name": "Example Outdoor Products Co., Ltd."
+  },
+  "quotation_date": "2026-05-30",
+  "items": [
+    {
+      "sku": "CT-200A",
+      "product": "Folding Camping Table",
+      "specification": "120 x 60 x 70 cm",
+      "packing": "124 x 64 x 10 cm",
+      "quantity": 500,
+      "unit_price": 17.2,
+      "amount": 8600
+    }
+  ],
+  "terms": {
+    "currency": "USD",
+    "incoterm": "FOB Ningbo",
+    "payment_terms": "30% T/T deposit, 70% before shipment",
+    "lead_time": "25-30 days",
+    "validity": "15 days"
+  },
+  "total_amount": 8600,
+  "missing_fields": [],
+  "review_notes": [
+    "Confirm buyer details before sending."
+  ],
+  "human_review_required": true
+}

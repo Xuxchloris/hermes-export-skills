@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Quotation Draft {{quotation_number}}</title>
+  <style>
+    body { font-family: Arial, sans-serif; color: #1f2937; margin: 32px; line-height: 1.45; }
+    h1 { font-size: 24px; margin-bottom: 4px; }
+    h2 { font-size: 16px; margin-top: 28px; }
+    .meta { display: grid; grid-template-columns: 160px 1fr; gap: 6px 12px; margin-top: 16px; }
+    .label { color: #6b7280; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px; text-align: left; }
+    th { background: #f3f4f6; }
+    .draft { color: #b45309; font-weight: bold; }
+    .total { text-align: right; font-weight: bold; }
+    .notice { margin-top: 24px; padding: 12px; border: 1px solid #f59e0b; background: #fffbeb; }
+  </style>
+</head>
+<body>
+  <h1>Quotation <span class="draft">Draft</span></h1>
+  <p>Quotation No. {{quotation_number}}</p>
+
+  <div class="meta">
+    <div class="label">Buyer</div>
+    <div>{{buyer_name}}</div>
+    <div class="label">Buyer Country</div>
+    <div>{{buyer_country}}</div>
+    <div class="label">Seller</div>
+    <div>{{seller_name}}</div>
+    <div class="label">Date</div>
+    <div>{{quotation_date}}</div>
+    <div class="label">Validity</div>
+    <div>{{validity}}</div>
+    <div class="label">Incoterm</div>
+    <div>{{incoterm}}</div>
+    <div class="label">Payment Terms</div>
+    <div>{{payment_terms}}</div>
+    <div class="label">Lead Time</div>
+    <div>{{lead_time}}</div>
+  </div>
+
+  <h2>Items</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>SKU</th>
+        <th>Product</th>
+        <th>Specification</th>
+        <th>Packing</th>
+        <th>Qty</th>
+        <th>Unit Price</th>
+        <th>Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{items}}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="6" class="total">Total</td>
+        <td>{{total_amount}}</td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <h2>Review Notes</h2>
+  <p>{{review_notes}}</p>
+
+  <div class="notice">
+    This quotation requires human review before sending. Human review required: {{human_review_required}}.
+  </div>
+</body>
+</html>

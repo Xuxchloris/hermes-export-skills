@@ -1,0 +1,17 @@
+currency: "USD"
+default_incoterm: "FOB Ningbo"
+validity_days: 15
+payment_terms: "30% T/T deposit, 70% before shipment"
+price_rules:
+  - sku: "CT-200A"
+    tiers:
+      - min_qty: 100
+        unit_price: 18.50
+      - min_qty: 500
+        unit_price: 17.20
+      - min_qty: 1000
+        unit_price: 16.40
+    sample_fee: 45
+    remarks:
+      - "Freight is not included unless a confirmed shipping quote is provided."
+      - "Final price requires human approval."

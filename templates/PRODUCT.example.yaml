@@ -1,0 +1,30 @@
+company:
+  name: "Example Outdoor Products Co., Ltd."
+  website: "https://example.com"
+  business_type: "manufacturer"
+  advantages:
+    - "10 years export experience"
+    - "OEM and ODM available"
+    - "ISO 9001 factory management"
+
+products:
+  - sku: "CT-200A"
+    name: "Folding Camping Table"
+    category: "outdoor furniture"
+    hs_code: "9403.20"
+    materials: ["aluminum alloy", "MDF tabletop"]
+    product_size: "120 x 60 x 70 cm"
+    packing_size: "124 x 64 x 10 cm"
+    gross_weight_kg: 9.8
+    carton_quantity: 1
+    moq: 100
+    lead_time_days: "25-30"
+    certifications: ["ASTM", "EN581"]
+    target_applications:
+      - "camping"
+      - "outdoor retail"
+      - "garden center"
+    keywords:
+      - "folding camping table"
+      - "outdoor table"
+      - "portable picnic table"

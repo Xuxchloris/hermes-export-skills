@@ -1,0 +1,22 @@
+target_markets:
+  - country: "United States"
+    region: "North America"
+    languages: ["English"]
+    preferred_customer_types:
+      - "importer"
+      - "distributor"
+      - "outdoor retail chain"
+      - "wholesaler"
+    decision_maker_roles:
+      - "Owner"
+      - "Purchasing Manager"
+      - "Sourcing Manager"
+      - "Category Manager"
+    compliance_notes:
+      - "Include opt-out line in cold outreach."
+
+exclude:
+  customer_types:
+    - "consumer blog"
+    - "news site"
+    - "unrelated marketplace seller"

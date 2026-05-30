@@ -1,0 +1,18 @@
+email:
+  language: "English"
+  style: "concise, professional, evidence-based"
+  word_limit: 160
+  first_email_rules:
+    - "Mention one concrete fact from the prospect website."
+    - "Do not attach large files in the first email."
+    - "Use a light CTA, such as asking whether a catalog or price range is useful."
+  avoid_words:
+    - "best price"
+    - "guaranteed"
+    - "buy now"
+
+signature:
+  sender_name: "Your Name"
+  title: "Sales Manager"
+  company: "Example Outdoor Products Co., Ltd."
+  email: "sales@example.com"
