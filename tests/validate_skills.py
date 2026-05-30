@@ -24,6 +24,8 @@ REQUIRED_ROOT_FILES = [
     "LICENSE",
     "install.sh",
     "install.ps1",
+    "bootstrap.sh",
+    "bootstrap.ps1",
     "create-profile.sh",
     "create-profile.ps1",
     "requirements.txt",
@@ -213,6 +215,27 @@ def validate_quick_start_example() -> None:
     assert_text_contains("docs/quick-start.md", ["SKU CT-200A"])
 
 
+def validate_bootstrap_contract() -> None:
+    assert_text_contains(
+        "README.md",
+        [
+            "https://github.com/Xuxchloris/hermes-export-skills.git",
+            "bootstrap.sh",
+            "bootstrap.ps1",
+            "raw.githubusercontent.com/Xuxchloris/hermes-export-skills/main/bootstrap.sh",
+            "raw.githubusercontent.com/Xuxchloris/hermes-export-skills/main/bootstrap.ps1",
+        ],
+    )
+    assert_text_contains(
+        "bootstrap.sh",
+        ["Xuxchloris/hermes-export-skills.git", "install.sh", "create-profile.sh", "HERMES_HOME"],
+    )
+    assert_text_contains(
+        "bootstrap.ps1",
+        ["Xuxchloris/hermes-export-skills.git", "install.ps1", "create-profile.ps1", "HERMES_HOME"],
+    )
+
+
 def main() -> None:
     for file in REQUIRED_ROOT_FILES:
         assert_exists(file)
@@ -227,6 +250,7 @@ def main() -> None:
     validate_pipeline_tools_contract()
     validate_router_contract()
     validate_quick_start_example()
+    validate_bootstrap_contract()
     print("PASS: skill package structure and required content are valid")
 
 

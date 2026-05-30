@@ -1,6 +1,6 @@
 # hermes-export-skills
 
-`hermes-export-skills` 是一套面向外贸出口业务的 Agent Skills 包，用于帮助 Hermes / openclaw类 Agent 搭建 B2B 海外客户开发工作流。
+`hermes-export-skills` 是一套面向外贸出口业务的 Agent Skills 包，用于帮助 Hermes / Codex 类 Agent 搭建 B2B 海外客户开发工作流。
 
 项目覆盖从产品资料读取、海外客户发现、批量名单处理、公司网站背调、客户评分、决策层线索提取、个性化开发信撰写、客户回复分类、跟进计划，到外贸报价单生成与 HTML / PDF / Excel 导出的完整基础流程。
 
@@ -8,11 +8,36 @@
 
 ## 安装
 
+一键安装到本机：
+
+Linux / Mac：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Xuxchloris/hermes-export-skills/main/bootstrap.sh | bash
+```
+
+Windows PowerShell：
+
+```powershell
+irm https://raw.githubusercontent.com/Xuxchloris/hermes-export-skills/main/bootstrap.ps1 | iex
+```
+
+如果要换 profile 名称：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Xuxchloris/hermes-export-skills/main/bootstrap.sh | bash -s -- demo-trade-agent
+```
+
+```powershell
+$env:HERMES_PROFILE_NAME="demo-trade-agent"
+irm https://raw.githubusercontent.com/Xuxchloris/hermes-export-skills/main/bootstrap.ps1 | iex
+```
+
 先下载项目：
 
 ```bash
-git clone https://github.com/your-name/hermes-trade-agent-skills.git
-cd hermes-trade-agent-skills
+git clone https://github.com/Xuxchloris/hermes-export-skills.git
+cd hermes-export-skills
 ```
 
 Windows PowerShell：
