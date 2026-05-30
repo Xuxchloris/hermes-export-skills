@@ -1,0 +1,66 @@
+name: Package and Release Skills
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v0.1.0)'
+        required: true
+        default: 'v0.1.0'
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package skills into .skill files
+        run: |
+          chmod +x package-skills.sh
+          VERSION="${{ github.ref_name || inputs.version }}"
+          ./package-skills.sh "$VERSION"
+
+      - name: List packaged files
+        run: |
+          echo "=== Packaged skills ==="
+          ls -lh releases/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name || inputs.version }}
+          name: Hermes Export Skills ${{ github.ref_name || inputs.version }}
+          body: |
+            ## Hermes Export Skills ${{ github.ref_name || inputs.version }}
+
+            ### What's New
+            See [CHANGELOG.md](./CHANGELOG.md) for details.
+
+            ### Install
+            Download any `.skill` file below. Open it in Cowork and click "Save skill" to install with one click.
+
+            **Recommended: start with `trade-workflow-router`** — it's the entry point that routes you to the right workflow.
+
+            ### All Skills
+            | Skill | Description |
+            |---|---|
+            | trade-workflow-router | Entry point and workflow router |
+            | product-loader | Load product catalog and pricing config |
+            | prospect-discovery | Customer discovery strategy and search |
+            | prospect-list-enrichment | Batch clean and enrich prospect lists |
+            | company-research | Website background research |
+            | prospect-scoring | Score and prioritize prospects |
+            | decision-maker-finder | Find decision-maker clues |
+            | email-crafting | Personalized outreach email drafts |
+            | reply-classification | Classify buyer replies |
+            | follow-up-planner | Follow-up task planning |
+            | quotation-generator | Quotation drafts and export |
+          files: releases/*.skill
+          draft: false
+          prerelease: false

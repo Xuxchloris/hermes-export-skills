@@ -69,8 +69,16 @@ python tools/collect_prospects.py --discovery templates/DISCOVERY.example.yaml -
 Run the batch customer development pipeline:
 
 ```bash
-python tools/batch_prospect_pipeline.py --input exports/prospect-collection/prospects.raw.csv --product templates/PRODUCT.example.yaml --market templates/MARKET.example.yaml --tone templates/TONE.example.yaml --output-dir exports/pipeline
+python tools/batch_prospect_pipeline.py --input exports/prospect-collection/prospects.raw.csv --product templates/PRODUCT.example.yaml --market templates/MARKET.example.yaml --tone templates/TONE.example.yaml --discovery templates/DISCOVERY.example.yaml --output-dir exports/pipeline
 ```
+
+Scrapling is the default scraping backend:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Run `scrapling install` only for `scrapling-dynamic` or `scrapling-stealthy`. Then set `scraping.engine` in `DISCOVERY.yaml` to `scrapling-fetcher`, `scrapling-dynamic`, or `scrapling-stealthy`.
 
 Find decision-maker clues for one company:
 

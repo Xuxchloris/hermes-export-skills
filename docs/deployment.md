@@ -47,6 +47,16 @@ The batch tools write output under `exports/` by default:
 
 ```bash
 python tools/collect_prospects.py --discovery templates/DISCOVERY.example.yaml --product templates/PRODUCT.example.yaml --output-dir exports/prospect-collection
-python tools/batch_prospect_pipeline.py --input exports/prospect-collection/prospects.raw.csv --product templates/PRODUCT.example.yaml --market templates/MARKET.example.yaml --tone templates/TONE.example.yaml --output-dir exports/pipeline
+python tools/batch_prospect_pipeline.py --input exports/prospect-collection/prospects.raw.csv --product templates/PRODUCT.example.yaml --market templates/MARKET.example.yaml --tone templates/TONE.example.yaml --discovery templates/DISCOVERY.example.yaml --output-dir exports/pipeline
 python tools/decision_maker_finder.py --website https://example.com --output exports/decision-makers.json
 ```
+
+## Scrapling Backend
+
+The default scraper uses `scrapling-fetcher`. Install dependencies before running batch crawling tools:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Run `scrapling install` only for `scrapling-dynamic` or `scrapling-stealthy`. Set `scraping.engine` in `DISCOVERY.yaml` to `scrapling-fetcher`, `scrapling-dynamic`, `scrapling-stealthy`, or `http`.

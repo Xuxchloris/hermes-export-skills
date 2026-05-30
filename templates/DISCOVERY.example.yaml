@@ -30,6 +30,14 @@ collection_api:
     backoff_seconds: 2
   notes: "Enter none when no collection API is available. If an API is approved later, store the provider, endpoint, and API key environment variable here."
 
+scraping:
+  engine: "scrapling-fetcher"
+  # Fallback engine: http
+  # Browser engines: scrapling-dynamic, scrapling-stealthy
+  headless: true
+  network_idle: true
+  stealthy_headers: true
+
 contact_enrichment_api:
   provider: "none"
   endpoint: ""

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Export Skills — 配置文件生成器</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+  .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+  h1 { font-size: 1.6em; margin-bottom: 4px; }
+  .subtitle { color: #666; margin-bottom: 24px; font-size: 0.95em; }
+  .section { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .section h2 { font-size: 1.1em; margin-bottom: 14px; color: #1a73e8; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 0.85em; font-weight: 600; color: #555; margin-bottom: 3px; }
+  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9em; }
+  .field textarea { min-height: 60px; resize: vertical; }
+  .field .hint { font-size: 0.75em; color: #999; margin-top: 2px; }
+  .row { display: flex; gap: 12px; }
+  .row .field { flex: 1; }
+  .tier-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .tier-row input { width: 100px; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85em; }
+  .tier-row .tier-label { font-size: 0.8em; color: #666; min-width: 40px; }
+  button { background: #1a73e8; color: #fff; border: none; padding: 12px 28px; border-radius: 6px; font-size: 1em; cursor: pointer; width: 100%; }
+  button:hover { background: #1557b0; }
+  .output { margin-top: 20px; }
+  .output .file-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 14px; margin-bottom: 8px; }
+  .output .file-card h3 { font-size: 0.9em; color: #1a73e8; margin-bottom: 6px; }
+  .output pre { background: #fafafa; border: 1px solid #eee; border-radius: 4px; padding: 10px; font-size: 0.8em; overflow-x: auto; max-height: 200px; overflow-y: auto; }
+  .download-btn { background: #34a853; margin-top: 8px; }
+  .download-btn:hover { background: #2d8f47; }
+  .note { background: #fff8e1; border-left: 3px solid #ffc107; padding: 10px 14px; border-radius: 0 4px 4px 0; font-size: 0.85em; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Hermes Export Skills — 配置生成器</h1>
+  <p class="subtitle">填写你的产品和市场信息，一键生成全部配置文件。下载后放入 <code>~/.hermes/profiles/你的公司名/data/config/</code> 即可使用。</p>
+
+  <div class="note">
+    所有信息仅在你的浏览器本地处理，不会上传到任何服务器。生成后请将配置文件妥善保存在本地。
+  </div>
+
+  <div class="section">
+    <h2>公司信息</h2>
+    <div class="row">
+      <div class="field"><label>公司英文名</label><input id="company_name" placeholder="Example Outdoor Products Co., Ltd."></div>
+      <div class="field"><label>公司网站</label><input id="company_website" placeholder="https://example.com"></div>
+    </div>
+    <div class="field"><label>公司优势（一行一条）</label><textarea id="company_advantages" placeholder="10 years export experience&#10;OEM and ODM available&#10;ISO 9001 factory management"></textarea></div>
+  </div>
+
+  <div class="section">
+    <h2>产品信息</h2>
+    <div class="row">
+      <div class="field"><label>SKU</label><input id="sku" placeholder="CT-200A"></div>
+      <div class="field"><label>产品名称（英文）</label><input id="product_name" placeholder="Folding Camping Table"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>产品类别</label><input id="category" placeholder="outdoor furniture"></div>
+      <div class="field"><label>HS 编码</label><input id="hs_code" placeholder="9403.20"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>材质（逗号分隔）</label><input id="materials" placeholder="aluminum alloy, MDF tabletop"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>产品尺寸</label><input id="product_size" placeholder="120 x 60 x 70 cm"></div>
+      <div class="field"><label>包装尺寸</label><input id="packing_size" placeholder="124 x 64 x 10 cm"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>毛重 (kg)</label><input id="gross_weight" placeholder="9.8" type="number" step="0.1"></div>
+      <div class="field"><label>每箱数量</label><input id="carton_qty" placeholder="1" type="number"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>MOQ</label><input id="moq" placeholder="100" type="number"></div>
+      <div class="field"><label>交期（天）</label><input id="lead_time" placeholder="25-30"></div>
+    </div>
+    <div class="field"><label>认证（逗号分隔）</label><input id="certifications" placeholder="ASTM, EN581"></div>
+    <div class="field"><label>目标应用场景（逗号分隔）</label><input id="applications" placeholder="camping, outdoor retail, garden center"></div>
+    <div class="field"><label>搜索关键词（逗号分隔）</label><input id="keywords" placeholder="folding camping table, outdoor table, portable picnic table"></div>
+  </div>
+
+  <div class="section">
+    <h2>价格信息</h2>
+    <div class="row">
+      <div class="field"><label>币种</label><select id="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>CNY</option></select></div>
+      <div class="field"><label>默认贸易术语</label><select id="incoterm"><option>FOB Ningbo</option><option>FOB Shanghai</option><option>FOB Shenzhen</option><option>EXW</option><option>CIF</option></select></div>
+    </div>
+    <div class="field"><label>付款方式</label><input id="payment_terms" placeholder="30% T/T deposit, 70% before shipment" value="30% T/T deposit, 70% before shipment"></div>
+    <div class="field"><label>报价有效期（天）</label><input id="validity" placeholder="15" type="number" value="15"></div>
+    <div class="field"><label>样品费 (USD)</label><input id="sample_fee" placeholder="45" type="number" step="0.01"></div>
+    <div class="field"><label>阶梯价格</label>
+      <div class="hint" style="margin-bottom:6px">数量 → 单价（USD）</div>
+      <div class="tier-row"><span class="tier-label">≥</span><input id="tier1_qty" placeholder="100" type="number"> <span class="tier-label">pcs →</span> <span class="tier-label">$</span><input id="tier1_price" placeholder="18.50" type="number" step="0.01"></div>
+      <div class="tier-row"><span class="tier-label">≥</span><input id="tier2_qty" placeholder="500" type="number"> <span class="tier-label">pcs →</span> <span class="tier-label">$</span><input id="tier2_price" placeholder="17.20" type="number" step="0.01"></div>
+      <div class="tier-row"><span class="tier-label">≥</span><input id="tier3_qty" placeholder="1000" type="number"> <span class="tier-label">pcs →</span> <span class="tier-label">$</span><input id="tier3_price" placeholder="16.40" type="number" step="0.01"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>目标市场</h2>
+    <div class="row">
+      <div class="field"><label>目标国家（逗号分隔）</label><input id="target_countries" placeholder="United States, Germany, United Kingdom" value="United States"></div>
+      <div class="field"><label>地区</label><input id="region" placeholder="North America" value="North America"></div>
+    </div>
+    <div class="field"><label>客户类型偏好（逗号分隔）</label><input id="customer_types" placeholder="importer, distributor, outdoor retail chain, wholesaler" value="importer, distributor, outdoor retail chain, wholesaler"></div>
+    <div class="field"><label>决策人角色（逗号分隔）</label><input id="dm_roles" placeholder="Owner, Purchasing Manager, Sourcing Manager, Category Manager" value="Owner, Purchasing Manager, Sourcing Manager, Category Manager"></div>
+  </div>
+
+  <div class="section">
+    <h2>邮件设置</h2>
+    <div class="row">
+      <div class="field"><label>发件人姓名</label><input id="sender_name" placeholder="Your Name"></div>
+      <div class="field"><label>职位</label><input id="sender_title" placeholder="Sales Manager"></div>
+    </div>
+    <div class="field"><label>邮箱</label><input id="sender_email" placeholder="sales@example.com" type="email"></div>
+    <div class="field"><label>邮件风格</label><select id="email_style"><option>concise, professional, evidence-based</option><option>friendly, conversational</option><option>formal, detailed</option></select></div>
+  </div>
+
+  <button onclick="generate()">生成配置文件</button>
+
+  <div class="output" id="output" style="display:none;"></div>
+</div>
+
+<script>
+function yamlEscape(v) { return String(v).includes(':') || String(v).includes('#') ? `"${v}"` : v; }
+
+function generate() {
+  const out = document.getElementById('output');
+  out.style.display = 'block';
+
+  const productYaml = `company:
+  name: "${g('company_name')}"
+  website: "${g('company_website')}"
+  business_type: "manufacturer"
+  advantages:
+${g('company_advantages').split('\n').filter(l=>l.trim()).map(l=>'    - "'+l.trim()+'"').join('\n')}
+
+products:
+  - sku: "${g('sku')}"
+    name: "${g('product_name')}"
+    category: "${g('category')}"
+    hs_code: "${g('hs_code')}"
+    materials: [${g('materials').split(',').map(s=>'"'+s.trim()+'"').join(', ')}]
+    product_size: "${g('product_size')}"
+    packing_size: "${g('packing_size')}"
+    gross_weight_kg: ${g('gross_weight')}
+    carton_quantity: ${g('carton_qty')}
+    moq: ${g('moq')}
+    lead_time_days: "${g('lead_time')}"
+    certifications: [${g('certifications').split(',').map(s=>'"'+s.trim()+'"').join(', ')}]
+    target_applications:
+${g('applications').split(',').map(s=>'      - "'+s.trim()+'"').join('\n')}
+    keywords:
+${g('keywords').split(',').map(s=>'      - "'+s.trim()+'"').join('\n')}
+`;
+
+  const pricingYaml = `currency: "${g('currency')}"
+default_incoterm: "${g('incoterm')}"
+validity_days: ${g('validity')}
+payment_terms: "${g('payment_terms')}"
+price_rules:
+  - sku: "${g('sku')}"
+    tiers:
+      - min_qty: ${g('tier1_qty')}
+        unit_price: ${g('tier1_price')}
+      - min_qty: ${g('tier2_qty')}
+        unit_price: ${g('tier2_price')}
+      - min_qty: ${g('tier3_qty')}
+        unit_price: ${g('tier3_price')}
+    sample_fee: ${g('sample_fee')}
+    remarks:
+      - "Freight is not included unless a confirmed shipping quote is provided."
+      - "Final price requires human approval."
+`;
+
+  const marketYaml = `target_markets:
+  - country: "${g('target_countries').split(',')[0].trim()}"
+    region: "${g('region')}"
+    languages: ["English"]
+    preferred_customer_types:
+${g('customer_types').split(',').map(s=>'      - "'+s.trim()+'"').join('\n')}
+    decision_maker_roles:
+${g('dm_roles').split(',').map(s=>'      - "'+s.trim()+'"').join('\n')}
+    compliance_notes:
+      - "Include opt-out line in cold outreach."
+
+exclude:
+  customer_types:
+    - "consumer blog"
+    - "news site"
+    - "unrelated marketplace seller"
+`;
+
+  const toneYaml = `email:
+  language: "English"
+  style: "${g('email_style')}"
+  word_limit: 160
+  first_email_rules:
+    - "Mention one concrete fact from the prospect website."
+    - "Do not attach large files in the first email."
+    - "Use a light CTA, such as asking whether a catalog or price range is useful."
+  avoid_words:
+    - "best price"
+    - "guaranteed"
+    - "buy now"
+
+signature:
+  sender_name: "${g('sender_name')}"
+  title: "${g('sender_title')}"
+  company: "${g('company_name')}"
+  email: "${g('sender_email')}"
+`;
+
+  const discoveryYaml = `collection_api:
+  provider: "none"
+  endpoint: ""
+  method: "GET"
+  api_key_env: ""
+  auth_header: "Authorization"
+  auth_scheme: "Bearer"
+  headers: {}
+  query_params:
+    query: "{keyword}"
+    region: "{region}"
+  pagination:
+    mode: "none"
+    page_param: "page"
+    page_size_param: "page_size"
+    page_size: 50
+    max_pages: 1
+  rate_limit:
+    requests_per_minute: 30
+  retry_policy:
+    max_attempts: 3
+    backoff_seconds: 2
+  notes: "Set provider when you have an approved collection API."
+
+contact_enrichment_api:
+  provider: "none"
+
+allowed_sources:
+  - "Google search results"
+  - "Trade show websites"
+  - "Industry directories"
+  - "Prospect company websites"
+  - "LinkedIn public summaries"
+  - "B2B platform public pages"
+
+default_regions:
+${g('target_countries').split(',').map(s=>'  - "'+s.trim()+'"').join('\n')}
+
+default_exclusions:
+  - "jobs"
+  - "careers"
+  - "consumer review"
+  - "marketplace-only seller"
+
+output_fields:
+  - "company_name"
+  - "website"
+  - "country"
+  - "business_type"
+  - "source_url"
+  - "evidence_summary"
+  - "risk_notes"
+`;
+
+  const files = [
+    { name: 'PRODUCT.yaml', content: productYaml },
+    { name: 'PRICING.yaml', content: pricingYaml },
+    { name: 'MARKET.yaml', content: marketYaml },
+    { name: 'TONE.yaml', content: toneYaml },
+    { name: 'DISCOVERY.yaml', content: discoveryYaml },
+  ];
+
+  let html = '<h3 style="margin-bottom:12px">生成的配置文件</h3>';
+  files.forEach(f => {
+    html += `<div class="file-card"><h3>${f.name}</h3><pre>${f.content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre></div>`;
+  });
+
+  html += `<button class="download-btn" onclick="downloadAll()">下载全部配置文件 (ZIP)</button>`;
+  html += `<p style="margin-top:12px;font-size:0.85em;color:#666;">下载后放入 <code>~/.hermes/profiles/[你的公司名]/data/config/</code> 目录</p>`;
+
+  out.innerHTML = html;
+
+  window._configFiles = files;
+}
+
+function g(id) { return document.getElementById(id)?.value || ''; }
+
+async function downloadAll() {
+  const files = window._configFiles;
+  if (!files) return;
+
+  // 逐个下载（浏览器端简单方案）
+  files.forEach(f => {
+    const blob = new Blob([f.content], { type: 'text/yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = f.name;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+</script>
+</body>
+</html>

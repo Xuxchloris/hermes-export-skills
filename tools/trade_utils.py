@@ -68,7 +68,46 @@ def render_template(value: Any, variables: dict[str, Any]) -> Any:
     return value
 
 
-def fetch_url(url: str, timeout: int = 12) -> str:
+def scrapling_fetch(url: str, scraping: dict[str, Any]) -> str:
+    engine = scraping.get("engine", "scrapling-fetcher")
+    try:
+        if engine == "scrapling-fetcher":
+            from scrapling.fetchers import Fetcher
+
+            page = Fetcher.get(url, stealthy_headers=bool(scraping.get("stealthy_headers", True)))
+        elif engine == "scrapling-dynamic":
+            from scrapling.fetchers import DynamicFetcher
+
+            page = DynamicFetcher.fetch(
+                url,
+                headless=bool(scraping.get("headless", True)),
+                network_idle=bool(scraping.get("network_idle", True)),
+            )
+        elif engine == "scrapling-stealthy":
+            from scrapling.fetchers import StealthyFetcher
+
+            page = StealthyFetcher.fetch(
+                url,
+                headless=bool(scraping.get("headless", True)),
+                network_idle=bool(scraping.get("network_idle", True)),
+            )
+        else:
+            raise ValueError(f"Unknown scraping engine: {engine}")
+    except ModuleNotFoundError as error:
+        raise RuntimeError(
+            "Scrapling is the default scraping backend. Install dependencies with "
+            "`python -m pip install -r requirements.txt`; "
+            "run `scrapling install` for browser-based engines."
+        ) from error
+    return str(getattr(page, "html_content", page))
+
+
+def fetch_url(url: str, scraping: dict[str, Any] | None = None, timeout: int = 12) -> str:
+    scraping = scraping or {}
+    engine = scraping.get("engine", "scrapling-fetcher")
+    if engine.startswith("scrapling-"):
+        return scrapling_fetch(url, scraping)
+
     request = Request(url, headers={"User-Agent": "HermesTradeAgent/0.1"})
     with urlopen(request, timeout=timeout) as response:
         content_type = response.headers.get("content-type", "")
@@ -86,7 +125,7 @@ def parse_html(html: str) -> tuple[str, list[str]]:
     return text, parser.links
 
 
-def crawl_company_pages(website: str, max_pages: int = 4) -> list[dict[str, str]]:
+def crawl_company_pages(website: str, max_pages: int = 4, scraping: dict[str, Any] | None = None) -> list[dict[str, str]]:
     queue = [website]
     seen: set[str] = set()
     pages: list[dict[str, str]] = []
@@ -98,7 +137,7 @@ def crawl_company_pages(website: str, max_pages: int = 4) -> list[dict[str, str]
             continue
         seen.add(url)
         try:
-            html = fetch_url(url)
+            html = fetch_url(url, scraping)
         except Exception as error:  # noqa: BLE001 - record fetch failure for review output.
             pages.append({"url": url, "text": "", "error": str(error)})
             continue

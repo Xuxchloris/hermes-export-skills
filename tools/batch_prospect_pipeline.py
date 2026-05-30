@@ -96,10 +96,19 @@ def make_email(company: str, evidence: str, product_name: str) -> tuple[str, str
     return subject, body
 
 
-def run_pipeline(input_path: Path, product_path: Path, market_path: Path, tone_path: Path, output_dir: Path) -> None:
+def run_pipeline(
+    input_path: Path,
+    product_path: Path,
+    market_path: Path,
+    tone_path: Path,
+    output_dir: Path,
+    discovery_path: Path | None = None,
+) -> None:
     product_config = load_yaml(product_path)
     market_config = load_yaml(market_path)
     load_yaml(tone_path)
+    discovery = load_yaml(discovery_path) if discovery_path else {}
+    scraping = discovery.get("scraping")
     product_name, terms = product_terms(product_config)
     unique_rows, review_rows = normalize_rows(read_table(input_path))
 
@@ -109,7 +118,7 @@ def run_pipeline(input_path: Path, product_path: Path, market_path: Path, tone_p
     reports: list[dict[str, Any]] = []
 
     for row in unique_rows:
-        pages = crawl_company_pages(row["website"], max_pages=5)
+        pages = crawl_company_pages(row["website"], max_pages=5, scraping=scraping)
         combined_text = "\n".join(page.get("text", "") for page in pages)
         first_evidence = ""
         for line in combined_text.splitlines():
@@ -117,7 +126,7 @@ def run_pipeline(input_path: Path, product_path: Path, market_path: Path, tone_p
                 first_evidence = line.strip()
                 break
         fit = analyze_fit(combined_text, terms, row.get("country", ""), market_config)
-        decision_makers = find_decision_makers(row["website"])
+        decision_makers = find_decision_makers(row["website"], scraping=scraping)
         subject, body = make_email(row["company_name"], first_evidence, product_name)
 
         enriched_rows.append({**row, "matched_terms": fit["matched_terms"], "decision_maker_count": len(decision_makers["candidates"])})
@@ -167,13 +176,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--product", type=Path, required=True)
     parser.add_argument("--market", type=Path, required=True)
     parser.add_argument("--tone", type=Path, required=True)
+    parser.add_argument("--discovery", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    run_pipeline(args.input, args.product, args.market, args.tone, args.output_dir)
+    run_pipeline(args.input, args.product, args.market, args.tone, args.output_dir, args.discovery)
     print(f"Pipeline outputs: {args.output_dir}")
     return 0
 

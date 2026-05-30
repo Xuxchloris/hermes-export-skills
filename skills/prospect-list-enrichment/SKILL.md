@@ -39,7 +39,7 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 
 ## Procedure
 
-1. Run `python tools/batch_prospect_pipeline.py --input <prospects.csv|xlsx> --product <PRODUCT.yaml> --market <MARKET.yaml> --tone <TONE.yaml> --output-dir <folder>` when one-step batch output is needed.
+1. Run `python tools/batch_prospect_pipeline.py --input <prospects.csv|xlsx> --product <PRODUCT.yaml> --market <MARKET.yaml> --tone <TONE.yaml> --discovery <DISCOVERY.yaml> --output-dir <folder>` when one-step batch output is needed.
 2. Read CSV or Excel rows without changing the original file.
 3. Normalize column names and map available values to company name, website, country, business type, source URL, source note, and contact clue.
 4. Normalize websites by domain and deduplicate rows by domain first, then by normalized company name and country.

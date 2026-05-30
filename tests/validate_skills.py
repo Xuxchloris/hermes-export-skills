@@ -160,6 +160,7 @@ def validate_discovery_contract() -> None:
     assert_text_contains(
         "templates/DISCOVERY.example.yaml",
         [
+            'engine: "scrapling-fetcher"',
             "method",
             "auth_header",
             "query_params",
@@ -169,6 +170,8 @@ def validate_discovery_contract() -> None:
             "rate_limit",
             "retry_policy",
             "contact_enrichment_api",
+            "scraping",
+            "scrapling",
         ],
     )
 
@@ -185,6 +188,16 @@ def validate_pipeline_tools_contract() -> None:
     assert_text_contains(
         "skills/decision-maker-finder/SKILL.md",
         ["tools/decision_maker_finder.py", "role", "email_status", "source_url"],
+    )
+    assert_text_contains(
+        "README.md",
+        [
+            "scrapling",
+            "scrapling-fetcher",
+            "scrapling install",
+            "scrapling-dynamic",
+            "scrapling-stealthy",
+        ],
     )
 
 
@@ -228,11 +241,11 @@ def validate_bootstrap_contract() -> None:
     )
     assert_text_contains(
         "bootstrap.sh",
-        ["Xuxchloris/hermes-export-skills.git", "install.sh", "create-profile.sh", "HERMES_HOME"],
+        ["Xuxchloris/hermes-export-skills.git", "requirements.txt", "install.sh", "create-profile.sh", "HERMES_HOME"],
     )
     assert_text_contains(
         "bootstrap.ps1",
-        ["Xuxchloris/hermes-export-skills.git", "install.ps1", "create-profile.ps1", "HERMES_HOME"],
+        ["Xuxchloris/hermes-export-skills.git", "requirements.txt", "install.ps1", "create-profile.ps1", "HERMES_HOME"],
     )
 
 

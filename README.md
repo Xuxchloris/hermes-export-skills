@@ -134,6 +134,7 @@ python tools/batch_prospect_pipeline.py \
   --product templates/PRODUCT.example.yaml \
   --market templates/MARKET.example.yaml \
   --tone templates/TONE.example.yaml \
+  --discovery templates/DISCOVERY.example.yaml \
   --output-dir exports/pipeline
 ```
 
@@ -171,13 +172,52 @@ python tools/render_quotation.py examples/quotation.example.json \
 
 PDF 从 HTML 转换，需要本机存在 Chrome、Edge 或 WeasyPrint。
 
+## 默认：Scrapling 抓取后端
+
+默认抓取引擎是 [Scrapling](https://github.com/D4Vinci/Scrapling) 的 `scrapling-fetcher`。它比普通 HTTP 抓取更适合外贸客户网站、目录页和公开公司页面。轻量 `http` 仍然保留为兜底选项。
+
+快速安装脚本会自动安装 `requirements.txt`。手动安装时先执行：
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+仅在使用 `scrapling-dynamic` 或 `scrapling-stealthy` 浏览器模式前，再安装浏览器依赖：
+
+```bash
+scrapling install
+```
+
+Windows 如果提示找不到 `scrapling` 命令，请先将当前 Python 的 `Scripts` 目录加入 `PATH`，再执行 `scrapling install`。只使用 `scrapling-fetcher` 时不需要安装浏览器依赖。
+
+新建 profile 后，`DISCOVERY.yaml` 默认已经是：
+
+```yaml
+scraping:
+  engine: "scrapling-fetcher"
+  headless: true
+  network_idle: true
+  stealthy_headers: true
+```
+
+需要时可以切换抓取引擎：
+
+| 引擎 | 适合场景 |
+| --- | --- |
+| `scrapling-fetcher` | 默认选择。静态页面增强抓取，不启动浏览器 |
+| `scrapling-dynamic` | 需要 JavaScript 渲染的网站 |
+| `scrapling-stealthy` | 需要更完整浏览器环境的公开页面采集 |
+| `http` | 兜底选择。极简环境或不想安装 Scrapling 时使用 |
+
+批量客户流水线和决策层线索工具会自动读取 `DISCOVERY.yaml` 中的 `scraping.engine`。浏览器模式依赖较重，建议只在需要时开启。
+
 ## Skills 列表
 
 | Skill | 用途 |
 | --- | --- |
 | `trade-workflow-router` | 外贸任务入口和工作流路由 |
 | `product-loader` | 读取产品和价格配置 |
-| `prospect-discovery` | 客户发现策略和采集 API 配置 |
+| `prospect-discovery` | 客户发现策略、采集 API 和 Scrapling 抓取配置 |
 | `prospect-list-enrichment` | 客户名单清洗、去重和批量处理 |
 | `company-research` | 公司网站背调 |
 | `prospect-scoring` | 客户优先级评分 |

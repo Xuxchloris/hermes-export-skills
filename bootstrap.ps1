@@ -15,6 +15,12 @@ try {
     throw "git is required for bootstrap.ps1"
   }
 
+  if (Get-Command python -ErrorAction SilentlyContinue) {
+    python -m pip install -r (Join-Path $WorkDir "requirements.txt")
+  } else {
+    throw "Python is required to install tool dependencies."
+  }
+
   & (Join-Path $WorkDir "install.ps1")
   & (Join-Path $WorkDir "create-profile.ps1") $ProfileName
 

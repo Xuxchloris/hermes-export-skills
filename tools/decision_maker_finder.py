@@ -79,8 +79,8 @@ def extract_candidates_from_pages(pages: list[dict[str, str]]) -> list[dict[str,
     return candidates
 
 
-def find_decision_makers(website: str) -> dict[str, Any]:
-    pages = crawl_company_pages(website, max_pages=5)
+def find_decision_makers(website: str, scraping: dict[str, Any] | None = None) -> dict[str, Any]:
+    pages = crawl_company_pages(website, max_pages=5, scraping=scraping)
     candidates = extract_candidates_from_pages(pages)
     return {
         "website": website,
@@ -147,7 +147,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    result = find_decision_makers(args.website)
+    discovery = load_yaml(args.discovery) if args.discovery else {}
+    result = find_decision_makers(args.website, discovery.get("scraping"))
     result["candidates"].extend(contact_api_candidates(args.discovery, args.website, args.company_name))
     write_json(args.output, result)
     print(f"Decision-maker clues: {args.output}")
