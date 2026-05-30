@@ -37,6 +37,10 @@ Do not use it to fabricate contact names or emails.
   "possible_needs": [],
   "personalization_points": [],
   "decision_maker_clues": [],
+  "contact_email": "",
+  "contact_phone": "",
+  "email_result": "found|没有",
+  "phone_result": "found|没有",
   "red_flags": [],
   "confidence": "low|medium|high"
 }
@@ -48,19 +52,23 @@ Do not use it to fabricate contact names or emails.
 2. Read the provided website content, browsing result, or `research_reports.json` output.
 3. Do not output company facts without fetched evidence. If fetching fails, return `evidence_status: "fetch_failed"` and stop at review notes.
 4. Extract observed facts: products, business type, brands, market focus, contact page, about page, and catalog clues.
-5. Record every fact with an evidence URL and short evidence text.
-6. Identify business type using evidence: importer, distributor, wholesaler, retailer, brand owner, manufacturer, contractor, marketplace seller, or unrelated site.
-7. Compare observed facts against the product context.
-8. Create `possible_needs` only when there is visible product, category, application, or channel overlap.
-9. If fetched pages contain no relevant product or channel clue, return `evidence_status: "no_evidence"` and keep confidence low.
-10. Create personalization points from concrete website facts, not generic praise.
-11. Flag red flags: no business relevance, consumer-only content, inactive website, unverifiable contact, unrelated industry, or low-quality scraped directory.
-12. Return confidence based on evidence quantity and recency.
+5. If the input is a company name or company link, resolve the official website when possible and run official website contact search across homepage, contact, about, team, catalog, and product pages.
+6. Record visible email and phone values as `contact_email` and `contact_phone`; if either value is not found, write `email_result: "没有"` or `phone_result: "没有"` instead of guessing.
+7. Record every fact with an evidence URL and short evidence text.
+8. Identify business type using evidence: importer, distributor, wholesaler, retailer, brand owner, manufacturer, contractor, marketplace seller, or unrelated site.
+9. Compare observed facts against the product context.
+10. Create `possible_needs` only when there is visible product, category, application, or channel overlap.
+11. If fetched pages contain no relevant product or channel clue, return `evidence_status: "no_evidence"` and keep confidence low.
+12. Create personalization points from concrete website facts, not generic praise.
+13. Flag red flags: no business relevance, consumer-only content, inactive website, unverifiable contact, unrelated industry, or low-quality scraped directory.
+14. Return confidence based on evidence quantity and recency.
 
 ## Verification
 
 - Every personalization point has website evidence.
 - Every observed fact includes an evidence URL.
+- Official website contact search is run when a company name, website, or company link is available.
+- Contact outputs include `contact_email`, `contact_phone`, `email_result`, and `phone_result`.
 - Inferences are labeled as possible needs, not facts.
 - No contact name is invented.
 - Red flags are present when the website is weak or unrelated.

@@ -52,7 +52,8 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 9. Write `prospects.enriched.xlsx`, `research_reports.json`, `scores.xlsx`, and `email_drafts.xlsx` when using the batch pipeline.
 10. Treat `research_reports.json` as the source of fetched evidence for scoring and emails.
 11. Do not fill missing company facts from assumptions; use `needs_review`, `fetch_failed`, or `no_evidence`.
-12. Send research-ready rows to `company-research`; send researched rows to `prospect-scoring`.
+12. If the user asks for a different output shape, preserve the same row data and choose the requested export format instead of changing the facts.
+13. Send research-ready rows to `company-research`; send researched rows to `prospect-scoring`.
 
 ## Verification
 
@@ -65,6 +66,7 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 - No generated rows appear in output workbooks.
 - Scoring and email drafts are based on fetched evidence.
 - Research happens before scoring.
+- Output format requests are honored without changing row facts.
 
 ## Common Mistakes
 

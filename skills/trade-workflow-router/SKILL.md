@@ -48,24 +48,29 @@ When the user already asks for a specific task, route directly to the matching s
    9. Create a quotation draft
    10. Export quotation HTML, PDF, or Excel files
 2. Ask the user to choose one item or describe the desired result in their own words.
-3. Route prospect collection to `prospect-discovery`; use `tools/collect_prospects.py` when file output is needed. If the agent has source pages for the current task, pass them as runtime `--source-url` values. If `DISCOVERY.yaml` sets `discovery_mode: "native_scrapling_spider"` or `scrapling_spider.enabled: true`, `collect_prospects.py` uses `tools/scrapling_spider_runner.py` and writes `prospects.raw.csv`, `prospects.raw.json`, and `crawl_report.json`. If MCP is configured, the same workflow is exposed by `tools/scrapling_mcp_server.py`.
-4. Route batch list processing to `prospect-list-enrichment`; use `tools/batch_prospect_pipeline.py` when one-step file output is needed.
-5. Route website background research to `company-research`.
-6. Route ranking and qualification to `prospect-scoring`.
-7. Route decision-maker work to `decision-maker-finder`; use `tools/decision_maker_finder.py` when JSON output is needed.
-8. Route personalized email drafting to `email-crafting`.
-9. Route inbound buyer messages to `reply-classification`.
-10. Route reminders and next-touch timing to `follow-up-planner`.
-11. Route quotations to `quotation-generator`; use `tools/render_quotation.py` for HTML, PDF, or Excel file export.
-12. When the user provides a website, CSV, Excel file, or discovery configuration, run the tool for the selected workflow before summarizing results.
-13. Do not output company facts, scores, buyer claims, or personalized email lines unless they are backed by fetched evidence from the downstream tool output.
-14. After completing one workflow, recommend the most relevant next workflow and ask whether the user wants to continue.
+3. When file output is needed, ask for the preferred output format once and use the recommended default if the user does not care:
+   - prospect discovery: `csv` + `json`
+   - quotation export: `html` + `excel`
+   - pass the chosen formats to tools with `--formats`
+4. Route prospect collection to `prospect-discovery`; use `tools/collect_prospects.py` when file output is needed. If the agent has source pages for the current task, pass them as runtime `--source-url` values. If `DISCOVERY.yaml` sets `discovery_mode: "native_scrapling_spider"` or `scrapling_spider.enabled: true`, `collect_prospects.py` uses `tools/scrapling_spider_runner.py` and writes `prospects.raw.csv`, `prospects.raw.json`, and `crawl_report.json`. If MCP is configured, the same workflow is exposed by `tools/scrapling_mcp_server.py`.
+5. Route batch list processing to `prospect-list-enrichment`; use `tools/batch_prospect_pipeline.py` when one-step file output is needed.
+6. Route website background research to `company-research`.
+7. Route ranking and qualification to `prospect-scoring`.
+8. Route decision-maker work to `decision-maker-finder`; use `tools/decision_maker_finder.py` when JSON output is needed.
+9. Route personalized email drafting to `email-crafting`.
+10. Route inbound buyer messages to `reply-classification`.
+11. Route reminders and next-touch timing to `follow-up-planner`.
+12. Route quotations to `quotation-generator`; use `tools/render_quotation.py` for HTML, PDF, or Excel file export.
+13. When the user provides a website, CSV, Excel file, or discovery configuration, run the tool for the selected workflow before summarizing results.
+14. Do not output company facts, scores, buyer claims, or personalized email lines unless they are backed by fetched evidence from the downstream tool output.
+15. After completing one workflow, recommend the most relevant next workflow and ask whether the user wants to continue.
 
 ## Verification
 
 - Broad foreign-trade requests receive the menu before work begins.
 - Specific requests route directly to the matching skill.
 - The selected workflow lists missing inputs before execution.
+- File-output workflows ask for an output format once, then use the recommended default when the user has no preference.
 - The router does not claim completion before the selected downstream workflow finishes.
 - Website and list workflows are based on fetched evidence, not generic examples.
 - Prospect discovery with configured public source URLs produces `crawl_report.json`; if no rows are found, report that status instead of inventing prospects.

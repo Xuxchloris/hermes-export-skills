@@ -10,7 +10,7 @@ import json
 
 from scrapling_prospect_spider import collect_from_sources
 from scrapling_spider_runner import apply_runtime_sources, collect_native_spider
-from trade_utils import load_json_path, load_yaml, render_template, select_product_config, sleep_for_rate_limit, write_csv, write_json
+from trade_utils import load_json_path, load_yaml, render_template, select_product_config, sleep_for_rate_limit, write_csv, write_json, write_workbook
 
 
 NO_CONTACT = "没有"
@@ -27,6 +27,8 @@ PROSPECT_FIELDS = [
     "email_result",
     "phone_result",
 ]
+
+SEARCH_TASK_FIELDS = ["keyword", "region", "source_type", "suggested_query", "status"]
 
 
 def with_contact_defaults(row: dict[str, Any]) -> dict[str, Any]:
@@ -73,6 +75,42 @@ def build_search_tasks(discovery: dict[str, Any], product_config: dict[str, Any]
                     }
                 )
     return rows
+
+
+def normalize_formats(values: list[str] | None, discovery: dict[str, Any]) -> list[str]:
+    raw_values = values or discovery.get("output_formats") or discovery.get("output", {}).get("formats") or ["csv", "json"]
+    if isinstance(raw_values, str):
+        raw_values = [raw_values]
+    normalized: list[str] = []
+    for value in raw_values:
+        for part in str(value).split(","):
+            item = part.strip().lower()
+            if item == "excel":
+                item = "xlsx"
+            if item and item not in normalized:
+                normalized.append(item)
+    for item in normalized:
+        if item not in {"csv", "json", "xlsx"}:
+            raise ValueError(f"Unsupported output format: {item}")
+    if not normalized:
+        return ["csv", "json"]
+    return normalized
+
+
+def write_table_outputs(output_dir: Path, stem: str, rows: list[dict[str, Any]], fieldnames: list[str], formats: list[str], sheet_name: str) -> dict[str, str]:
+    outputs: dict[str, str] = {}
+    ordered_rows = [{field: row.get(field, "") for field in fieldnames} for row in rows]
+    if "csv" in formats:
+        write_csv(output_dir / f"{stem}.csv", ordered_rows, fieldnames)
+        outputs["csv"] = str(output_dir / f"{stem}.csv")
+    if "json" in formats:
+        write_json(output_dir / f"{stem}.json", ordered_rows)
+        outputs["json"] = str(output_dir / f"{stem}.json")
+    if "xlsx" in formats:
+        workbook_rows = ordered_rows or [{field: "" for field in fieldnames}]
+        write_workbook(output_dir / f"{stem}.xlsx", {sheet_name: workbook_rows})
+        outputs["xlsx"] = str(output_dir / f"{stem}.xlsx")
+    return outputs
 
 
 def api_request(api: dict[str, Any], variables: dict[str, Any]) -> dict[str, Any]:
@@ -138,6 +176,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--source-name", default="")
     parser.add_argument("--source-type", default="")
     parser.add_argument("--source-country", default="")
+    parser.add_argument("--formats", nargs="+", default=[], help="Comma-separated or space-separated output formats such as csv json xlsx")
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
@@ -146,6 +185,7 @@ def main() -> int:
     args = parse_args()
     discovery = load_yaml(args.discovery)
     discovery = apply_runtime_sources(discovery, args.source_url, args.source_name, args.source_type, args.source_country)
+    formats = normalize_formats(args.formats, discovery)
     product_config = load_yaml(args.product)
     product_config = select_product_config(product_config, args.product_query, args.sku)
     api = discovery.get("collection_api", {})
@@ -161,11 +201,8 @@ def main() -> int:
         rows = [with_contact_defaults(row) for row in rows]
         outputs = {"report": str(args.output_dir / "crawl_report.json")}
         if rows:
-            write_csv(args.output_dir / "prospects.raw.csv", rows, PROSPECT_FIELDS)
-            write_json(args.output_dir / "prospects.raw.json", rows)
-            outputs["csv"] = str(args.output_dir / "prospects.raw.csv")
-            outputs["json"] = str(args.output_dir / "prospects.raw.json")
-            print(f"Raw prospects: {args.output_dir / 'prospects.raw.csv'}")
+            outputs.update(write_table_outputs(args.output_dir, "prospects.raw", rows, PROSPECT_FIELDS, formats, "Prospects"))
+            print(f"Raw prospects: {outputs.get('csv') or outputs.get('json') or outputs.get('xlsx')}")
         else:
             print(f"Source status: {report['source_status']}")
         report["outputs"] = outputs
@@ -175,26 +212,25 @@ def main() -> int:
     if spider_cfg.get("runner") == "source_collector":
         rows, report = collect_from_sources(discovery, product_config)
         rows = [with_contact_defaults(row) for row in rows]
-        write_json(args.output_dir / "crawl_report.json", report)
+        outputs = {"report": str(args.output_dir / "crawl_report.json")}
         if rows:
-            write_csv(args.output_dir / "prospects.raw.csv", rows, PROSPECT_FIELDS)
-            write_json(args.output_dir / "prospects.raw.json", rows)
-            print(f"Raw prospects: {args.output_dir / 'prospects.raw.csv'}")
+            outputs.update(write_table_outputs(args.output_dir, "prospects.raw", rows, PROSPECT_FIELDS, formats, "Prospects"))
+            print(f"Raw prospects: {outputs.get('csv') or outputs.get('json') or outputs.get('xlsx')}")
         else:
             print(f"Source status: {report['source_status']}")
+        report["outputs"] = outputs
+        write_json(args.output_dir / "crawl_report.json", report)
         return 0
 
     if api.get("provider", "none") == "none" or not api.get("endpoint"):
         tasks = build_search_tasks(discovery, product_config)
-        write_csv(args.output_dir / "prospect_search_tasks.csv", tasks, ["keyword", "region", "source_type", "suggested_query", "status"])
-        write_json(args.output_dir / "prospect_search_tasks.json", tasks)
-        print(f"Search tasks: {args.output_dir / 'prospect_search_tasks.csv'}")
+        outputs = write_table_outputs(args.output_dir, "prospect_search_tasks", tasks, SEARCH_TASK_FIELDS, formats, "Search Tasks")
+        print(f"Search tasks: {outputs.get('csv') or outputs.get('json') or outputs.get('xlsx')}")
         return 0
 
     rows = [with_contact_defaults(row) for row in collect_from_api(discovery, product_config)]
-    write_csv(args.output_dir / "prospects.raw.csv", rows, PROSPECT_FIELDS)
-    write_json(args.output_dir / "prospects.raw.json", rows)
-    print(f"Raw prospects: {args.output_dir / 'prospects.raw.csv'}")
+    outputs = write_table_outputs(args.output_dir, "prospects.raw", rows, PROSPECT_FIELDS, formats, "Prospects")
+    print(f"Raw prospects: {outputs.get('csv') or outputs.get('json') or outputs.get('xlsx')}")
     return 0
 
 

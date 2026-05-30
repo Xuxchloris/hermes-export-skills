@@ -55,20 +55,22 @@ Use `company-research` first when the company fit is still unknown.
 ## Procedure
 
 1. Run `python tools/decision_maker_finder.py --website <url> --output <decision_makers.json>` when file output is needed.
-2. Check company pages such as homepage, about, contact, team, catalog, and product pages.
-3. Always run forced contact search across every checked page for email and phone values, even when no role clue is found.
-4. If email or phone is not found, output `email_result: "没有"` or `phone_result: "没有"` in `contact_search`.
-5. Look for role clues such as Owner, Founder, Purchasing Manager, Sourcing Manager, Category Manager, Procurement Manager, and Buyer.
-6. Validate email syntax and mark whether the email domain appears company-level.
-7. If a phone appears near a role clue, include it with `phone_status`.
-8. If `DISCOVERY.yaml` has a configured contact enrichment API, use its schema and record API results as additional evidence.
-9. Return role, name if visible, email if visible, phone if visible, confidence, source URL, and evidence text.
-10. Pass useful candidates into `prospect-scoring` as decision-maker access evidence.
+2. If the input is only a company name or company link, resolve the official website when possible before contact analysis.
+3. Check company pages such as homepage, about, contact, team, catalog, and product pages.
+4. Always run official website contact search across every checked page for email and phone values, even when no role clue is found.
+5. If email or phone is not found, output `email_result: "没有"` or `phone_result: "没有"` in `contact_search`.
+6. Look for role clues such as Owner, Founder, Purchasing Manager, Sourcing Manager, Category Manager, Procurement Manager, and Buyer.
+7. Validate email syntax and mark whether the email domain appears company-level.
+8. If a phone appears near a role clue, include it with `phone_status`.
+9. If `DISCOVERY.yaml` has a configured contact enrichment API, use its schema and record API results as additional evidence.
+10. Return role, name if visible, email if visible, phone if visible, confidence, source URL, and evidence text.
+11. Pass useful candidates into `prospect-scoring` as decision-maker access evidence.
 
 ## Verification
 
 - Every candidate includes a role and source URL.
 - `contact_search` is present even when there are no candidates.
+- Official website contact search runs when a company name, website, or company link is available.
 - `email_status` is present for every candidate.
 - Missing email or phone search results are written as `没有`.
 - A role clue is not described as confirmed purchase intent.

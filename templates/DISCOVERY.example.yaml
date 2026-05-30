@@ -36,9 +36,16 @@ scraping:
   engine: "scrapling-fetcher"
   # Fallback engine: http
   # Browser engines: scrapling-dynamic, scrapling-stealthy
+  # Optional fixed egress proxy. Prefer environment variable SCRAPING_PROXY_URL for private values.
+  proxy: ""
+  proxies: {}
   headless: true
   network_idle: true
   stealthy_headers: true
+
+output_formats:
+  - "csv"
+  - "json"
 
 # Use "search_tasks" with no source URLs, or "native_scrapling_spider"
 # when scrapling_spider.source_urls contains public source pages to crawl.

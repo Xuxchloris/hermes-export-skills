@@ -60,9 +60,12 @@ Use it for company-level discovery planning and evidence collection before outre
 16. Build keyword groups from product names, HS codes, applications, buyer types, target regions, and channel terms.
 17. Add exclude terms for jobs, consumer reviews, unrelated retail-only pages, marketplaces without seller websites, and irrelevant industries.
 18. Keep each candidate tied to a source URL, company-level signal, and reviewable evidence summary.
-19. For each candidate, record company name, website, country, business type, source URL, evidence summary, risk notes, contact email, contact phone, email result, and phone result.
-20. If email or phone is not found during discovery, write `contact_email: "没有"`, `contact_phone: "没有"`, `email_result: "没有"`, or `phone_result: "没有"` instead of omitting the fields.
-21. Send candidates with evidence to `company-research`; send researched prospects to `prospect-scoring`.
+19. When discovery finds a company name or company link, visit the official website or source-linked company page next and run official website contact search before finalizing the row.
+20. During official website contact search, check homepage, contact, about, team, catalog, and product pages for visible email and phone values.
+21. For each candidate, record company name, website, country, business type, source URL, evidence summary, risk notes, contact email, contact phone, email result, and phone result.
+22. If email or phone is not found during discovery, write `contact_email: "没有"`, `contact_phone: "没有"`, `email_result: "没有"`, or `phone_result: "没有"` instead of omitting the fields.
+23. Respect `output_formats` in `DISCOVERY.yaml` or runtime `--formats` when exporting `prospects.raw` or `prospect_search_tasks`.
+24. Send candidates with evidence to `company-research`; send researched prospects to `prospect-scoring`.
 
 ## Verification
 
@@ -76,7 +79,9 @@ Use it for company-level discovery planning and evidence collection before outre
 - A numbered customer list requires `prospects.raw.csv`, a user-provided prospect file, or source URLs from fetched company pages.
 - `source_unavailable` is used when sources do not return usable company records.
 - API collection writes `prospects.raw.csv` and `prospects.raw.json`.
+- A company name or company link triggers official website contact search before the candidate is finalized.
 - `prospects.raw.csv` always includes `contact_email`, `contact_phone`, `email_result`, and `phone_result`; missing contact values are written as `没有`.
+- `output_formats` or runtime `--formats` controls whether the tool writes CSV, JSON, XLSX, or a mix of them.
 - Configured APIs include response mapping, pagination, rate limit, and retry policy.
 - Scrapling is the default scraping backend, and browser modes are enabled only when their dependencies are installed.
 - Product or SKU selection can be passed through `--product-query` or `--sku`.

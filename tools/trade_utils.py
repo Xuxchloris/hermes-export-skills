@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
@@ -9,7 +10,7 @@ import re
 import time
 from typing import Any
 from urllib.parse import urljoin, urlparse
-from urllib.request import Request, urlopen
+from urllib.request import ProxyHandler, Request, build_opener, urlopen
 
 import yaml
 from openpyxl import Workbook, load_workbook
@@ -108,13 +109,35 @@ def select_product_config(product_config: dict[str, Any], product_query: str = "
     return selected
 
 
+def scraping_proxy_options(scraping: dict[str, Any] | None = None) -> dict[str, Any]:
+    scraping = scraping or {}
+    proxy = str(scraping.get("proxy") or os.environ.get("SCRAPING_PROXY_URL") or "").strip()
+    proxies = dict(scraping.get("proxies") or {})
+    http_proxy = str(os.environ.get("SCRAPING_PROXY_HTTP") or "").strip()
+    https_proxy = str(os.environ.get("SCRAPING_PROXY_HTTPS") or "").strip()
+
+    if not proxies and (http_proxy or https_proxy):
+        proxies = {}
+        if http_proxy:
+            proxies["http"] = http_proxy
+        if https_proxy:
+            proxies["https"] = https_proxy
+
+    if proxy:
+        return {"proxy": proxy}
+    if proxies:
+        return {"proxies": proxies}
+    return {}
+
+
 def scrapling_fetch(url: str, scraping: dict[str, Any]) -> str:
     engine = scraping.get("engine", "scrapling-fetcher")
+    proxy_options = scraping_proxy_options(scraping)
     try:
         if engine == "scrapling-fetcher":
             from scrapling.fetchers import Fetcher
 
-            page = Fetcher.get(url, stealthy_headers=bool(scraping.get("stealthy_headers", True)))
+            page = Fetcher.get(url, stealthy_headers=bool(scraping.get("stealthy_headers", True)), **proxy_options)
         elif engine == "scrapling-dynamic":
             from scrapling.fetchers import DynamicFetcher
 
@@ -122,6 +145,7 @@ def scrapling_fetch(url: str, scraping: dict[str, Any]) -> str:
                 url,
                 headless=bool(scraping.get("headless", True)),
                 network_idle=bool(scraping.get("network_idle", True)),
+                **proxy_options,
             )
         elif engine == "scrapling-stealthy":
             from scrapling.fetchers import StealthyFetcher
@@ -130,6 +154,7 @@ def scrapling_fetch(url: str, scraping: dict[str, Any]) -> str:
                 url,
                 headless=bool(scraping.get("headless", True)),
                 network_idle=bool(scraping.get("network_idle", True)),
+                **proxy_options,
             )
         else:
             raise ValueError(f"Unknown scraping engine: {engine}")
@@ -149,7 +174,16 @@ def fetch_url(url: str, scraping: dict[str, Any] | None = None, timeout: int = 1
         return scrapling_fetch(url, scraping)
 
     request = Request(url, headers={"User-Agent": "HermesTradeAgent/0.1"})
-    with urlopen(request, timeout=timeout) as response:
+    proxy_options = scraping_proxy_options(scraping)
+    if "proxy" in proxy_options:
+        proxy_url = proxy_options["proxy"]
+        opener = build_opener(ProxyHandler({"http": proxy_url, "https": proxy_url}))
+        response_context = opener.open(request, timeout=timeout)
+    elif "proxies" in proxy_options:
+        response_context = build_opener(ProxyHandler(proxy_options["proxies"])).open(request, timeout=timeout)
+    else:
+        response_context = urlopen(request, timeout=timeout)
+    with response_context as response:
         content_type = response.headers.get("content-type", "")
         charset = "utf-8"
         match = re.search(r"charset=([\w-]+)", content_type)

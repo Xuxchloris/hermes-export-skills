@@ -9,10 +9,10 @@ from scrapling.spiders import Request, Response, Spider
 
 try:  # Support both `python tools/x.py` and `from tools.x import ...`.
     from .scrapling_prospect_spider import SourceSeed, _product_terms, _seed_entries, _source_matches_product
-    from .trade_utils import load_yaml, select_product_config, website_key, write_csv, write_json
+    from .trade_utils import load_yaml, scraping_proxy_options, select_product_config, website_key, write_csv, write_json
 except ImportError:  # pragma: no cover - script execution path.
     from scrapling_prospect_spider import SourceSeed, _product_terms, _seed_entries, _source_matches_product
-    from trade_utils import load_yaml, select_product_config, website_key, write_csv, write_json
+    from trade_utils import load_yaml, scraping_proxy_options, select_product_config, website_key, write_csv, write_json
 
 
 def apply_runtime_sources(
@@ -99,6 +99,7 @@ class ProspectDiscoverySpider(Spider):
 
     def configure_sessions(self, manager: Any) -> None:
         engine = self.scraping.get("engine", "scrapling-fetcher")
+        proxy_options = scraping_proxy_options(self.scraping)
         if engine in {"http", "scrapling-fetcher"}:
             from scrapling.fetchers import FetcherSession
 
@@ -107,6 +108,7 @@ class ProspectDiscoverySpider(Spider):
                 FetcherSession(
                     stealthy_headers=bool(self.scraping.get("stealthy_headers", True)),
                     timeout=self.scraping.get("timeout", 30),
+                    **proxy_options,
                 ),
                 default=True,
             )
@@ -119,6 +121,7 @@ class ProspectDiscoverySpider(Spider):
                 DynamicSession(
                     headless=bool(self.scraping.get("headless", True)),
                     network_idle=bool(self.scraping.get("network_idle", True)),
+                    **proxy_options,
                 ),
                 default=True,
             )
@@ -131,6 +134,7 @@ class ProspectDiscoverySpider(Spider):
                 StealthySession(
                     headless=bool(self.scraping.get("headless", True)),
                     network_idle=bool(self.scraping.get("network_idle", True)),
+                    **proxy_options,
                 ),
                 default=True,
             )

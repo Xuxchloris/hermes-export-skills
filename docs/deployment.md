@@ -90,6 +90,8 @@ python -m pip install -r requirements.txt
 
 Run `scrapling install` only for `scrapling-dynamic` or `scrapling-stealthy`. Set `scraping.engine` in `DISCOVERY.yaml` to `scrapling-fetcher`, `scrapling-dynamic`, `scrapling-stealthy`, or `http`.
 
+For a fixed network egress, set `SCRAPING_PROXY_URL` in the profile environment. The scraping tools also accept `scraping.proxy` or `scraping.proxies` in `DISCOVERY.yaml`; keep private proxy credentials out of Git.
+
 ## MCP Server
 
 The MCP entrypoint wraps the same native Spider runner:

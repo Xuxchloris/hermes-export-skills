@@ -71,6 +71,48 @@ class TradeAutomationTests(unittest.TestCase):
             self.assertIn("solar generator", keywords)
             self.assertNotIn("folding camping table", keywords)
 
+    def test_collect_prospects_respects_requested_output_formats(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir)
+            result = self.run_script(
+                "collect_prospects.py",
+                "--discovery",
+                str(ROOT / "templates" / "DISCOVERY.example.yaml"),
+                "--product",
+                str(ROOT / "templates" / "PRODUCT.example.yaml"),
+                "--formats",
+                "xlsx",
+                "--output-dir",
+                str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((output_dir / "prospect_search_tasks.xlsx").exists())
+            self.assertFalse((output_dir / "prospect_search_tasks.csv").exists())
+            self.assertFalse((output_dir / "prospect_search_tasks.json").exists())
+            workbook = load_workbook(output_dir / "prospect_search_tasks.xlsx")
+            self.assertEqual(workbook["Search Tasks"]["A1"].value, "keyword")
+
+    def test_collect_prospects_accepts_comma_separated_format_aliases(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir)
+            result = self.run_script(
+                "collect_prospects.py",
+                "--discovery",
+                str(ROOT / "templates" / "DISCOVERY.example.yaml"),
+                "--product",
+                str(ROOT / "templates" / "PRODUCT.example.yaml"),
+                "--formats",
+                "csv,excel",
+                "--output-dir",
+                str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((output_dir / "prospect_search_tasks.csv").exists())
+            self.assertTrue((output_dir / "prospect_search_tasks.xlsx").exists())
+            self.assertFalse((output_dir / "prospect_search_tasks.json").exists())
+
     def test_collect_prospects_uses_scrapling_spider_mode_for_source_urls(self) -> None:
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self) -> None:  # noqa: N802 - stdlib callback name.

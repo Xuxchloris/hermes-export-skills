@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 import tempfile
@@ -33,6 +34,16 @@ class ScrapingBackendTests(unittest.TestCase):
 
         self.assertIn("scrapling default", html)
         get.assert_called_once()
+
+    def test_scrapling_backend_uses_default_proxy_from_environment(self) -> None:
+        fake_page = Mock()
+        fake_page.html_content = "<html>proxied</html>"
+        with patch.dict(os.environ, {"SCRAPING_PROXY_URL": "http://home-proxy.example:8080"}, clear=False):
+            with patch("scrapling.fetchers.Fetcher.get", return_value=fake_page) as get:
+                html = fetch_url("https://example.com")
+
+        self.assertIn("proxied", html)
+        self.assertEqual(get.call_args.kwargs["proxy"], "http://home-proxy.example:8080")
 
     def test_scrapling_backend_reports_dependency_hint_when_missing(self) -> None:
         with patch("builtins.__import__", side_effect=ModuleNotFoundError("No module named 'scrapling'")):

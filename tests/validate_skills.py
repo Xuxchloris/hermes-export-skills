@@ -177,6 +177,8 @@ def validate_discovery_contract() -> None:
             "tools/scrapling_mcp_server.py",
             "source_urls",
             "crawl_report.json",
+            "company name or company link",
+            "official website contact search",
             "--product-query",
             "--sku",
         ],
@@ -208,11 +210,18 @@ def validate_discovery_contract() -> None:
             "source_urls",
             "scraping",
             "scrapling",
+            "proxy",
+            "proxies",
+            "SCRAPING_PROXY_URL",
         ],
     )
     assert_text_contains(
         "skills/product-loader/SKILL.md",
         ["Optional product catalog file with multiple SKUs", "select the matching product from the catalog"],
+    )
+    assert_text_contains(
+        "skills/company-research/SKILL.md",
+        ["official website contact search", "contact_email", "contact_phone", "email_result", "phone_result"],
     )
 
 
@@ -222,12 +231,16 @@ def validate_pipeline_tools_contract() -> None:
         ["tools/collect_prospects.py", "tools/scrapling_spider_runner.py", "tools/scrapling_mcp_server.py", "search tasks", "prospects.raw.csv", "--product-query", "--sku"],
     )
     assert_text_contains(
+        "skills/trade-workflow-router/SKILL.md",
+        ["output format", "--formats", "recommended default"],
+    )
+    assert_text_contains(
         "skills/prospect-list-enrichment/SKILL.md",
         ["tools/batch_prospect_pipeline.py", "prospects.enriched.xlsx", "email_drafts.xlsx", "contact_email", "contact_phone", "email_result", "phone_result", "--product-query", "--sku"],
     )
     assert_text_contains(
         "skills/decision-maker-finder/SKILL.md",
-        ["tools/decision_maker_finder.py", "role", "email_status", "source_url", "contact_search", "phone_result", "没有"],
+        ["tools/decision_maker_finder.py", "role", "email_status", "source_url", "contact_search", "phone_result", "official website contact search", "没有"],
     )
     assert_text_contains(
         "docs/deployment.md",
