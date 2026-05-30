@@ -54,6 +54,7 @@ Copy-Item (Join-Path $RootDir "tools\trade_utils.py") (Join-Path $ProfileDir "to
 - Save classified replies in `data/replies/`.
 - Save follow-up plans in `data/follow-ups/`.
 - Run local automation from this profile's `tools/` directory, such as `python tools/collect_prospects.py`.
+- If you already found public source pages for the current task, pass them to `python tools/collect_prospects.py --source-url ...` instead of editing `DISCOVERY.yaml`.
 - Never invent company facts, contact names, prices, certifications, or delivery dates.
 - Use approved business sources and record source evidence for each prospect.
 - Emails and quotations require human review before sending.
