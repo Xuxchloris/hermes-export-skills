@@ -1,0 +1,53 @@
+company:
+  name: "Example Export Products Co., Ltd."
+  website: "https://example.com"
+  business_type: "manufacturer"
+  advantages:
+    - "OEM and ODM available"
+    - "Export packing support"
+    - "Stable production schedule"
+
+products:
+  - sku: "CT-200A"
+    name: "Folding Camping Table"
+    category: "outdoor furniture"
+    hs_code: "9403.20"
+    materials: ["aluminum alloy", "MDF tabletop"]
+    product_size: "120 x 60 x 70 cm"
+    packing_size: "124 x 64 x 10 cm"
+    gross_weight_kg: 9.8
+    carton_quantity: 1
+    moq: 100
+    lead_time_days: "25-30"
+    certifications: ["ASTM", "EN581"]
+    target_applications:
+      - "camping"
+      - "outdoor retail"
+      - "garden center"
+    keywords:
+      - "folding camping table"
+      - "outdoor table"
+      - "portable picnic table"
+
+  - sku: "PPS-600"
+    name: "Portable Power Station"
+    category: "portable energy storage"
+    hs_code: "8507.60"
+    materials: ["LiFePO4 battery", "ABS housing"]
+    product_size: "29 x 20 x 20 cm"
+    packing_size: "35 x 26 x 28 cm"
+    gross_weight_kg: 8.5
+    carton_quantity: 1
+    moq: 50
+    lead_time_days: "30-40"
+    certifications: ["CE", "FCC", "UN38.3", "MSDS"]
+    target_applications:
+      - "outdoor camping"
+      - "solar backup"
+      - "emergency power"
+      - "RV accessories"
+    keywords:
+      - "portable power station"
+      - "solar generator"
+      - "outdoor power supply"
+      - "portable energy storage"

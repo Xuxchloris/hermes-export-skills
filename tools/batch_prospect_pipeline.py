@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from decision_maker_finder import find_decision_makers
-from trade_utils import crawl_company_pages, load_yaml, read_table, website_key, write_json, write_workbook
+from trade_utils import crawl_company_pages, load_yaml, read_table, select_product_config, website_key, write_json, write_workbook
 
 
 def first_value(row: dict[str, Any], keys: list[str]) -> str:
@@ -122,8 +122,11 @@ def run_pipeline(
     tone_path: Path,
     output_dir: Path,
     discovery_path: Path | None = None,
+    product_query: str = "",
+    sku: str = "",
 ) -> None:
     product_config = load_yaml(product_path)
+    product_config = select_product_config(product_config, product_query, sku)
     market_config = load_yaml(market_path)
     load_yaml(tone_path)
     discovery = load_yaml(discovery_path) if discovery_path else {}
@@ -218,13 +221,15 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--market", type=Path, required=True)
     parser.add_argument("--tone", type=Path, required=True)
     parser.add_argument("--discovery", type=Path)
+    parser.add_argument("--product-query", default="")
+    parser.add_argument("--sku", default="")
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    run_pipeline(args.input, args.product, args.market, args.tone, args.output_dir, args.discovery)
+    run_pipeline(args.input, args.product, args.market, args.tone, args.output_dir, args.discovery, args.product_query, args.sku)
     print(f"Pipeline outputs: {args.output_dir}")
     return 0
 

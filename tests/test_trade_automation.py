@@ -48,6 +48,74 @@ class TradeAutomationTests(unittest.TestCase):
             self.assertIn("folding camping table", {row["keyword"].lower() for row in rows})
             self.assertIn("United States", {row["region"] for row in rows})
 
+    def test_collect_prospects_selects_product_from_catalog_without_rewriting_config(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output_dir = Path(temp_dir)
+            result = self.run_script(
+                "collect_prospects.py",
+                "--discovery",
+                str(ROOT / "templates" / "DISCOVERY.example.yaml"),
+                "--product",
+                str(ROOT / "templates" / "PRODUCTS.catalog.example.yaml"),
+                "--product-query",
+                "portable power station",
+                "--output-dir",
+                str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            with (output_dir / "prospect_search_tasks.csv").open(encoding="utf-8") as handle:
+                rows = list(csv.DictReader(handle))
+            keywords = {row["keyword"].lower() for row in rows}
+            self.assertIn("portable power station", keywords)
+            self.assertIn("solar generator", keywords)
+            self.assertNotIn("folding camping table", keywords)
+
+    def test_batch_pipeline_selects_product_from_catalog_without_rewriting_config(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            power_site = temp_path / "power.html"
+            power_site.write_text(
+                "<!doctype html><html><body>"
+                "<h1>Solar Retail Distributor</h1>"
+                "<p>We distribute portable power station and solar generator products for outdoor retailers.</p>"
+                "</body></html>",
+                encoding="utf-8",
+            )
+            discovery = temp_path / "DISCOVERY.yaml"
+            discovery.write_text("scraping:\n  engine: \"http\"\n", encoding="utf-8")
+            input_csv = temp_path / "prospects.csv"
+            input_csv.write_text(
+                "company_name,website,country,source_url\n"
+                f"Solar Retail,{power_site.as_uri()},United States,fixture-power\n",
+                encoding="utf-8",
+            )
+            output_dir = temp_path / "pipeline"
+
+            result = self.run_script(
+                "batch_prospect_pipeline.py",
+                "--input",
+                str(input_csv),
+                "--product",
+                str(ROOT / "templates" / "PRODUCTS.catalog.example.yaml"),
+                "--product-query",
+                "portable power station",
+                "--market",
+                str(ROOT / "templates" / "MARKET.example.yaml"),
+                "--tone",
+                str(ROOT / "templates" / "TONE.example.yaml"),
+                "--discovery",
+                str(discovery),
+                "--output-dir",
+                str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            email_book = load_workbook(output_dir / "email_drafts.xlsx")
+            body = email_book["Email Drafts"]["D2"].value
+            self.assertIn("Portable Power Station", body)
+            self.assertNotIn("Folding Camping Table", body)
+
     def test_collect_prospects_calls_configured_api(self) -> None:
         class Handler(BaseHTTPRequestHandler):
             def do_GET(self) -> None:  # noqa: N802 - stdlib callback name.

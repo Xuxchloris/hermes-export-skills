@@ -101,6 +101,16 @@ $env:HERMES_HOME="$HOME\.hermes"
 
 模板在 [templates](templates/) 目录。
 
+如果你有多个产品，不需要每次重写 `PRODUCT.yaml`。可以把多款产品放进 `PRODUCTS.catalog.example.yaml` 这种产品库文件，任务里只传产品名或 SKU：
+
+```bash
+python tools/collect_prospects.py \
+  --discovery templates/DISCOVERY.example.yaml \
+  --product templates/PRODUCTS.catalog.example.yaml \
+  --product-query "portable power station" \
+  --output-dir exports/prospect-collection
+```
+
 ## 使用方式
 
 只输入“外贸”或“开发海外客户”，`trade-workflow-router` 会先展示工作菜单：
@@ -125,6 +135,8 @@ python tools/collect_prospects.py \
   --product templates/PRODUCT.example.yaml \
   --output-dir exports/prospect-collection
 ```
+
+客户发现默认先走本地工具。没有采集 API 时，工具只生成可审计的搜索任务，不会把平台搜索页当成已经抓到的客户名单；拿到候选公司后，再用 Scrapling 抓客户官网做背调。
 
 有客户名单后，运行批量流水线：
 

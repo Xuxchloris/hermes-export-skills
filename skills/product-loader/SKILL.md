@@ -19,6 +19,8 @@ Do not use it to research a prospect website or write the final email body by it
 
 - `data/config/PRODUCT.yaml`
 - `data/config/PRICING.yaml`
+- Optional product catalog file with multiple SKUs
+- Optional product query or SKU when the user only wants one product from a catalog
 - User-provided product notes in the current conversation
 
 ## Outputs
@@ -37,14 +39,16 @@ Do not use it to research a prospect website or write the final email body by it
 
 1. Read `PRODUCT.yaml` and extract company profile, SKUs, product names, HS codes, materials, dimensions, packaging, MOQ, lead time, certifications, applications, and keywords.
 2. Read `PRICING.yaml` and extract currency, incoterm, validity, payment terms, tier prices, sample fees, and remarks.
-3. Prefer current conversation facts only when the user explicitly overrides the configured file.
-4. Mark missing fields instead of guessing them.
-5. Set `safe_to_quote` to `true` only when SKU, quantity, unit price, incoterm, payment terms, validity, product size, and packing size are present.
-6. Return a compact product context for downstream skills.
+3. If the user names a product, keyword, or SKU, select the matching product from the catalog instead of asking them to rewrite the whole config.
+4. Prefer current conversation facts only when the user explicitly overrides the configured file.
+5. Mark missing fields instead of guessing them.
+6. Set `safe_to_quote` to `true` only when SKU, quantity, unit price, incoterm, payment terms, validity, product size, and packing size are present.
+7. Return a compact product context for downstream skills.
 
 ## Verification
 
 - Product names and SKUs match the source file.
+- Catalog selection returns the named product only.
 - Prices come only from `PRICING.yaml` or explicit user input.
 - Missing price, size, packing, MOQ, incoterm, or lead time is listed in `missing_fields`.
 - Certifications are not added unless present in source data.

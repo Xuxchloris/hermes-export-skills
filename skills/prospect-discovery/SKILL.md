@@ -44,15 +44,16 @@ Use it for company-level discovery planning and evidence collection before outre
 1. Read `DISCOVERY.yaml` before asking about collection tooling.
 2. If `collection_api.provider` is missing, ask the user once for the collection API. If there is no API, write `none` into `DISCOVERY.yaml` when file editing is available.
 3. If the user provides an approved API after setup, write its provider, endpoint, method, API key environment variable, auth header, query parameters, response mapping, pagination, rate limit, and retry policy into `DISCOVERY.yaml`; keep raw secrets in environment variables.
-4. Read `scraping.engine`. Use `scrapling-fetcher` as the default. Use `scrapling-dynamic` or `scrapling-stealthy` only when the deployment has installed browser dependencies. Use `http` only as a lightweight fallback.
+4. Read `scraping.engine`. Use `scrapling-fetcher` only for crawling company pages after a candidate is already known. Do not use browser navigation as the default customer-discovery path.
 5. Run `python tools/collect_prospects.py --discovery <DISCOVERY.yaml> --product <PRODUCT.yaml> --output-dir <folder>` when file output is needed.
-6. Without a configured API, create search tasks for Google search results, trade show websites, industry directories, prospect company websites, LinkedIn public summaries, and B2B platform public pages.
-7. With a configured API, produce `prospects.raw.csv` and `prospects.raw.json`.
-8. Build keyword groups from product names, HS codes, applications, buyer types, target regions, and channel terms.
-9. Add exclude terms for jobs, consumer reviews, unrelated retail-only pages, marketplaces without seller websites, and irrelevant industries.
-10. Keep each candidate tied to a source URL, company-level signal, and reviewable evidence summary.
-11. For each candidate, record company name, website, country, business type, source URL, evidence summary, and risk notes.
-12. Send candidates with evidence to `company-research`; send researched prospects to `prospect-scoring`.
+6. If the user only names a product or SKU, pass `--product-query` or `--sku` instead of rewriting `PRODUCT.yaml`.
+7. Without a configured API, create search tasks for Google search results, trade show websites, industry directories, prospect company websites, LinkedIn public summaries, and B2B platform public pages.
+8. With a configured API, produce `prospects.raw.csv` and `prospects.raw.json`.
+9. Build keyword groups from product names, HS codes, applications, buyer types, target regions, and channel terms.
+10. Add exclude terms for jobs, consumer reviews, unrelated retail-only pages, marketplaces without seller websites, and irrelevant industries.
+11. Keep each candidate tied to a source URL, company-level signal, and reviewable evidence summary.
+12. For each candidate, record company name, website, country, business type, source URL, evidence summary, and risk notes.
+13. Send candidates with evidence to `company-research`; send researched prospects to `prospect-scoring`.
 
 ## Verification
 
@@ -62,6 +63,7 @@ Use it for company-level discovery planning and evidence collection before outre
 - API collection writes `prospects.raw.csv` and `prospects.raw.json`.
 - Configured APIs include response mapping, pagination, rate limit, and retry policy.
 - Scrapling is the default scraping backend, and browser modes are enabled only when their dependencies are installed.
+- Product or SKU selection can be passed through `--product-query` or `--sku`.
 - Every candidate includes a public source URL and evidence summary.
 - Every candidate depends on reviewable company-level evidence.
 - Next steps include `company-research` before `prospect-scoring`.

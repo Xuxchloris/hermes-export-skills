@@ -68,6 +68,46 @@ def render_template(value: Any, variables: dict[str, Any]) -> Any:
     return value
 
 
+def _product_tokens(product: dict[str, Any]) -> list[str]:
+    tokens: list[str] = []
+    for key in ["sku", "name", "category", "hs_code"]:
+        value = product.get(key)
+        if value:
+            tokens.append(str(value))
+    for key in ["keywords", "target_applications"]:
+        tokens.extend(str(item) for item in product.get(key, []))
+    return [token.lower() for token in tokens if token]
+
+
+def select_product_config(product_config: dict[str, Any], product_query: str = "", sku: str = "") -> dict[str, Any]:
+    products = list(product_config.get("products", []))
+    if not products:
+        return product_config
+
+    query = product_query.strip().lower()
+    sku = sku.strip().lower()
+    if not query and not sku:
+        return product_config
+
+    matched: list[dict[str, Any]] = []
+    for product in products:
+        tokens = _product_tokens(product)
+        if sku and str(product.get("sku", "")).lower() == sku:
+            matched = [product]
+            break
+        if query and any(query in token or token in query for token in tokens):
+            matched.append(product)
+
+    if not matched:
+        raise ValueError(f"No product matched query '{product_query or sku}'")
+
+    selected = dict(product_config)
+    selected["products"] = matched
+    selected["selected_product_query"] = product_query
+    selected["selected_product_sku"] = sku
+    return selected
+
+
 def scrapling_fetch(url: str, scraping: dict[str, Any]) -> str:
     engine = scraping.get("engine", "scrapling-fetcher")
     try:

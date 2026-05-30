@@ -42,16 +42,17 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 ## Procedure
 
 1. Run `python tools/batch_prospect_pipeline.py --input <prospects.csv|xlsx> --product <PRODUCT.yaml> --market <MARKET.yaml> --tone <TONE.yaml> --discovery <DISCOVERY.yaml> --output-dir <folder>` when one-step batch output is needed.
-2. Read CSV or Excel rows without changing the original file.
-3. Normalize column names and map available values to company name, website, country, business type, source URL, source note, and contact clue.
-4. Normalize websites by domain and deduplicate rows by domain first, then by normalized company name and country.
-5. Preserve all source URLs and merge useful source notes when duplicates are combined.
-6. Mark rows without company name or website as `needs_review`.
-7. Mark rows outside the target market or unrelated to the product category as `excluded_rows` with a reason.
-8. Write `prospects.enriched.xlsx`, `research_reports.json`, `scores.xlsx`, and `email_drafts.xlsx` when using the batch pipeline.
-9. Treat `research_reports.json` as the source of fetched evidence for scoring and emails.
-10. Do not fill missing company facts from assumptions; use `needs_review`, `fetch_failed`, or `no_evidence`.
-11. Send research-ready rows to `company-research`; send researched rows to `prospect-scoring`.
+2. If the product file is a catalog and the user names one product, add `--product-query <name>` or `--sku <sku>` instead of editing the catalog.
+3. Read CSV or Excel rows without changing the original file.
+4. Normalize column names and map available values to company name, website, country, business type, source URL, source note, and contact clue.
+5. Normalize websites by domain and deduplicate rows by domain first, then by normalized company name and country.
+6. Preserve all source URLs and merge useful source notes when duplicates are combined.
+7. Mark rows without company name or website as `needs_review`.
+8. Mark rows outside the target market or unrelated to the product category as `excluded_rows` with a reason.
+9. Write `prospects.enriched.xlsx`, `research_reports.json`, `scores.xlsx`, and `email_drafts.xlsx` when using the batch pipeline.
+10. Treat `research_reports.json` as the source of fetched evidence for scoring and emails.
+11. Do not fill missing company facts from assumptions; use `needs_review`, `fetch_failed`, or `no_evidence`.
+12. Send research-ready rows to `company-research`; send researched rows to `prospect-scoring`.
 
 ## Verification
 

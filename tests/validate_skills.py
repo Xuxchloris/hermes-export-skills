@@ -38,6 +38,7 @@ REQUIRED_ROOT_FILES = [
 
 REQUIRED_TEMPLATES = [
     "PRODUCT.example.yaml",
+    "PRODUCTS.catalog.example.yaml",
     "MARKET.example.yaml",
     "TONE.example.yaml",
     "PRICING.example.yaml",
@@ -155,6 +156,9 @@ def validate_discovery_contract() -> None:
             "company-level signals",
             "company-research",
             "prospect-scoring",
+            "do not use browser navigation as the default customer-discovery path",
+            "--product-query",
+            "--sku",
         ],
     )
     assert_text_contains(
@@ -174,16 +178,20 @@ def validate_discovery_contract() -> None:
             "scrapling",
         ],
     )
+    assert_text_contains(
+        "skills/product-loader/SKILL.md",
+        ["Optional product catalog file with multiple SKUs", "select the matching product from the catalog"],
+    )
 
 
 def validate_pipeline_tools_contract() -> None:
     assert_text_contains(
         "skills/prospect-discovery/SKILL.md",
-        ["tools/collect_prospects.py", "search tasks", "prospects.raw.csv"],
+        ["tools/collect_prospects.py", "search tasks", "prospects.raw.csv", "--product-query", "--sku"],
     )
     assert_text_contains(
         "skills/prospect-list-enrichment/SKILL.md",
-        ["tools/batch_prospect_pipeline.py", "prospects.enriched.xlsx", "email_drafts.xlsx"],
+        ["tools/batch_prospect_pipeline.py", "prospects.enriched.xlsx", "email_drafts.xlsx", "--product-query", "--sku"],
     )
     assert_text_contains(
         "skills/decision-maker-finder/SKILL.md",

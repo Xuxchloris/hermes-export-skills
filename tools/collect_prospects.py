@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 import json
 
-from trade_utils import load_json_path, load_yaml, render_template, sleep_for_rate_limit, write_csv, write_json
+from trade_utils import load_json_path, load_yaml, render_template, select_product_config, sleep_for_rate_limit, write_csv, write_json
 
 
 def product_keywords(product_config: dict[str, Any]) -> list[str]:
@@ -96,6 +96,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Collect prospect candidates from configured discovery sources")
     parser.add_argument("--discovery", type=Path, required=True)
     parser.add_argument("--product", type=Path, required=True)
+    parser.add_argument("--product-query", default="")
+    parser.add_argument("--sku", default="")
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
@@ -104,6 +106,7 @@ def main() -> int:
     args = parse_args()
     discovery = load_yaml(args.discovery)
     product_config = load_yaml(args.product)
+    product_config = select_product_config(product_config, args.product_query, args.sku)
     api = discovery.get("collection_api", {})
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
