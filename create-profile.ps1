@@ -30,6 +30,8 @@ Copy-Item (Join-Path $RootDir "templates\DISCOVERY.example.yaml") (Join-Path $Pr
 Copy-Item (Join-Path $RootDir "templates\.env.example") (Join-Path $ProfileDir ".env.example") -Force
 Copy-Item (Join-Path $RootDir "tools\collect_prospects.py") (Join-Path $ProfileDir "tools\collect_prospects.py") -Force
 Copy-Item (Join-Path $RootDir "tools\scrapling_prospect_spider.py") (Join-Path $ProfileDir "tools\scrapling_prospect_spider.py") -Force
+Copy-Item (Join-Path $RootDir "tools\scrapling_spider_runner.py") (Join-Path $ProfileDir "tools\scrapling_spider_runner.py") -Force
+Copy-Item (Join-Path $RootDir "tools\scrapling_mcp_server.py") (Join-Path $ProfileDir "tools\scrapling_mcp_server.py") -Force
 Copy-Item (Join-Path $RootDir "tools\batch_prospect_pipeline.py") (Join-Path $ProfileDir "tools\batch_prospect_pipeline.py") -Force
 Copy-Item (Join-Path $RootDir "tools\decision_maker_finder.py") (Join-Path $ProfileDir "tools\decision_maker_finder.py") -Force
 Copy-Item (Join-Path $RootDir "tools\render_quotation.py") (Join-Path $ProfileDir "tools\render_quotation.py") -Force

@@ -80,6 +80,24 @@ python -m pip install -r requirements.txt
 
 Run `scrapling install` only for `scrapling-dynamic` or `scrapling-stealthy`. Then set `scraping.engine` in `DISCOVERY.yaml` to `scrapling-fetcher`, `scrapling-dynamic`, or `scrapling-stealthy`.
 
+To crawl public directories or trade-show exhibitor pages with Scrapling's native Spider runner, set `discovery_mode: "native_scrapling_spider"` and add `scrapling_spider.source_urls`, then run:
+
+```bash
+python tools/scrapling_spider_runner.py --discovery data/config/DISCOVERY.yaml --product data/config/PRODUCT.yaml --output-dir data/prospects
+```
+
+If the agent has selected source pages during the task, pass them at runtime instead of editing the config:
+
+```bash
+python tools/collect_prospects.py --discovery data/config/DISCOVERY.yaml --product data/config/PRODUCT.yaml --source-url https://example.com/exhibitors --source-type trade_show --source-country "United States" --output-dir data/prospects
+```
+
+MCP-capable agents can use the same runner through:
+
+```bash
+python tools/scrapling_mcp_server.py
+```
+
 Find decision-maker clues for one company:
 
 ```bash

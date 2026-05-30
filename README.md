@@ -139,18 +139,7 @@ python tools/collect_prospects.py \
 
 客户发现默认先走本地工具。没有采集 API 时，工具只生成可审计的搜索任务，不会把平台搜索页当成已经抓到的客户名单；拿到候选公司后，再用 Scrapling 抓客户官网做背调。
 
-如果你已经有公开目录页、展会展商页或行业名单页，可以在 `DISCOVERY.yaml` 里设置 `discovery_mode: "scrapling_spider"` 并填写 `scrapling_spider.source_urls`。这时同一条命令会输出 `prospects.raw.csv`、`prospects.raw.json` 和 `crawl_report.json`。
-
-```yaml
-discovery_mode: "scrapling_spider"
-scrapling_spider:
-  enabled: true
-  source_urls:
-    - name: "Example trade show exhibitors"
-      url: "https://example.com/exhibitors"
-      source_type: "trade_show"
-      country: "United States"
-```
+如果 Agent 已经找到公开目录页、展会展商页或行业名单页，可以把这些 URL 作为运行时来源传给工具；也可以在 `DISCOVERY.yaml` 里预置 `scrapling_spider.source_urls`。工具会调用 Scrapling 做公开网页采集，并输出 `prospects.raw.csv`、`prospects.raw.json` 和 `crawl_report.json`。
 
 有客户名单后，运行批量流水线：
 
@@ -198,44 +187,9 @@ python tools/render_quotation.py examples/quotation.example.json \
 
 PDF 从 HTML 转换，需要本机存在 Chrome、Edge 或 WeasyPrint。
 
-## 默认：Scrapling 抓取后端
+## 抓取说明
 
-默认抓取引擎是 [Scrapling](https://github.com/D4Vinci/Scrapling) 的 `scrapling-fetcher`。它比普通 HTTP 抓取更适合外贸客户网站、目录页和公开公司页面。轻量 `http` 仍然保留为兜底选项。
-
-快速安装脚本会自动安装 `requirements.txt`。手动安装时先执行：
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-仅在使用 `scrapling-dynamic` 或 `scrapling-stealthy` 浏览器模式前，再安装浏览器依赖：
-
-```bash
-scrapling install
-```
-
-Windows 如果提示找不到 `scrapling` 命令，请先将当前 Python 的 `Scripts` 目录加入 `PATH`，再执行 `scrapling install`。只使用 `scrapling-fetcher` 时不需要安装浏览器依赖。
-
-新建 profile 后，`DISCOVERY.yaml` 默认已经是：
-
-```yaml
-scraping:
-  engine: "scrapling-fetcher"
-  headless: true
-  network_idle: true
-  stealthy_headers: true
-```
-
-需要时可以切换抓取引擎：
-
-| 引擎 | 适合场景 |
-| --- | --- |
-| `scrapling-fetcher` | 默认选择。静态页面增强抓取，不启动浏览器 |
-| `scrapling-dynamic` | 需要 JavaScript 渲染的网站 |
-| `scrapling-stealthy` | 需要更完整浏览器环境的公开页面采集 |
-| `http` | 兜底选择。极简环境或不想安装 Scrapling 时使用 |
-
-批量客户流水线和决策层线索工具会自动读取 `DISCOVERY.yaml` 中的 `scraping.engine`。浏览器模式依赖较重，建议只在需要时开启。
+公开网页采集底层调用 [Scrapling](https://github.com/D4Vinci/Scrapling)。本项目只做外贸业务封装：读取产品和市场配置、组织采集任务、保存来源证据，并把结果交给背调、评分、开发信和报价流程。
 
 ## Skills 列表
 
@@ -243,7 +197,7 @@ scraping:
 | --- | --- |
 | `trade-workflow-router` | 外贸任务入口和工作流路由 |
 | `product-loader` | 读取产品和价格配置 |
-| `prospect-discovery` | 客户发现策略、采集 API 和 Scrapling 抓取配置 |
+| `prospect-discovery` | 客户发现策略、采集 API 和公开网页采集配置 |
 | `prospect-list-enrichment` | 客户名单清洗、去重和批量处理 |
 | `company-research` | 公司网站背调 |
 | `prospect-scoring` | 客户优先级评分 |
@@ -258,6 +212,8 @@ scraping:
 | 脚本 | 输出 |
 | --- | --- |
 | `tools/collect_prospects.py` | `prospect_search_tasks.csv` 或 `prospects.raw.csv` |
+| `tools/scrapling_spider_runner.py` | 公开来源页采集结果和 `crawl_report.json` |
+| `tools/scrapling_mcp_server.py` | MCP 采集工具入口 |
 | `tools/batch_prospect_pipeline.py` | `prospects.enriched.xlsx`、`scores.xlsx`、`email_drafts.xlsx`、`research_reports.json` |
 | `tools/decision_maker_finder.py` | 决策层线索 JSON |
 | `tools/render_quotation.py` | HTML / PDF / Excel 报价文件 |
@@ -277,7 +233,7 @@ tests/        结构校验和工具测试
 
 ```bash
 python tests/validate_skills.py .
-python -m unittest tests/test_trade_automation.py tests/test_render_quotation.py -v
+python -m unittest tests/test_scraping_backend.py tests/test_trade_automation.py tests/test_scrapling_spider_runner.py tests/test_render_quotation.py -v
 ```
 
 成功时会看到：

@@ -9,6 +9,7 @@ from urllib.request import Request, urlopen
 import json
 
 from scrapling_prospect_spider import collect_from_sources
+from scrapling_spider_runner import apply_runtime_sources, collect_native_spider
 from trade_utils import load_json_path, load_yaml, render_template, select_product_config, sleep_for_rate_limit, write_csv, write_json
 
 
@@ -99,6 +100,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--product", type=Path, required=True)
     parser.add_argument("--product-query", default="")
     parser.add_argument("--sku", default="")
+    parser.add_argument("--source-url", action="append", default=[])
+    parser.add_argument("--source-name", default="")
+    parser.add_argument("--source-type", default="")
+    parser.add_argument("--source-country", default="")
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()
 
@@ -106,6 +111,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     discovery = load_yaml(args.discovery)
+    discovery = apply_runtime_sources(discovery, args.source_url, args.source_name, args.source_type, args.source_country)
     product_config = load_yaml(args.product)
     product_config = select_product_config(product_config, args.product_query, args.sku)
     api = discovery.get("collection_api", {})
@@ -113,7 +119,26 @@ def main() -> int:
     discovery_mode = str(discovery.get("discovery_mode", "")).strip().lower()
     args.output_dir.mkdir(parents=True, exist_ok=True)
 
-    if discovery_mode == "scrapling_spider" or spider_cfg.get("enabled"):
+    if (
+        discovery_mode in {"native_scrapling_spider", "scrapling_spider"}
+        or spider_cfg.get("enabled")
+    ) and spider_cfg.get("runner") != "source_collector":
+        rows, report = collect_native_spider(discovery, product_config)
+        outputs = {"report": str(args.output_dir / "crawl_report.json")}
+        if rows:
+            fields = ["company_name", "website", "country", "business_type", "source_url", "evidence_summary", "risk_notes"]
+            write_csv(args.output_dir / "prospects.raw.csv", rows, fields)
+            write_json(args.output_dir / "prospects.raw.json", rows)
+            outputs["csv"] = str(args.output_dir / "prospects.raw.csv")
+            outputs["json"] = str(args.output_dir / "prospects.raw.json")
+            print(f"Raw prospects: {args.output_dir / 'prospects.raw.csv'}")
+        else:
+            print(f"Source status: {report['source_status']}")
+        report["outputs"] = outputs
+        write_json(args.output_dir / "crawl_report.json", report)
+        return 0
+
+    if spider_cfg.get("runner") == "source_collector":
         rows, report = collect_from_sources(discovery, product_config)
         write_json(args.output_dir / "crawl_report.json", report)
         if rows:

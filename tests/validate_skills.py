@@ -32,6 +32,8 @@ REQUIRED_ROOT_FILES = [
     "tools/render_quotation.py",
     "tools/collect_prospects.py",
     "tools/scrapling_prospect_spider.py",
+    "tools/scrapling_spider_runner.py",
+    "tools/scrapling_mcp_server.py",
     "tools/batch_prospect_pipeline.py",
     "tools/decision_maker_finder.py",
     "examples/quotation.example.json",
@@ -166,6 +168,9 @@ def validate_discovery_contract() -> None:
             "Do not return a numbered customer list",
             "prospects.raw.csv",
             "scrapling_spider",
+            "native_scrapling_spider",
+            "tools/scrapling_spider_runner.py",
+            "tools/scrapling_mcp_server.py",
             "source_urls",
             "crawl_report.json",
             "--product-query",
@@ -187,6 +192,11 @@ def validate_discovery_contract() -> None:
             "contact_enrichment_api",
             "discovery_mode",
             "scrapling_spider",
+            "runner",
+            "native",
+            "concurrent_requests_per_domain",
+            "checkpoint_interval_seconds",
+            "max_blocked_retries",
             "source_urls",
             "scraping",
             "scrapling",
@@ -201,7 +211,7 @@ def validate_discovery_contract() -> None:
 def validate_pipeline_tools_contract() -> None:
     assert_text_contains(
         "skills/prospect-discovery/SKILL.md",
-        ["tools/collect_prospects.py", "tools/scrapling_prospect_spider.py", "search tasks", "prospects.raw.csv", "--product-query", "--sku"],
+        ["tools/collect_prospects.py", "tools/scrapling_spider_runner.py", "tools/scrapling_mcp_server.py", "search tasks", "prospects.raw.csv", "--product-query", "--sku"],
     )
     assert_text_contains(
         "skills/prospect-list-enrichment/SKILL.md",
@@ -212,7 +222,7 @@ def validate_pipeline_tools_contract() -> None:
         ["tools/decision_maker_finder.py", "role", "email_status", "source_url", "contact_search", "phone_result", "没有"],
     )
     assert_text_contains(
-        "README.md",
+        "docs/deployment.md",
         [
             "scrapling",
             "scrapling-fetcher",
@@ -283,7 +293,8 @@ def validate_router_contract() -> None:
             "follow-up-planner",
             "quotation-generator",
             "tools/collect_prospects.py",
-            "tools/scrapling_prospect_spider.py",
+            "tools/scrapling_spider_runner.py",
+            "tools/scrapling_mcp_server.py",
             "tools/batch_prospect_pipeline.py",
             "tools/decision_maker_finder.py",
             "tools/render_quotation.py",
@@ -317,11 +328,11 @@ def validate_bootstrap_contract() -> None:
     )
     assert_text_contains(
         "install.sh",
-        ["tools", "collect_prospects.py", "scrapling_prospect_spider.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
+        ["tools", "collect_prospects.py", "scrapling_prospect_spider.py", "scrapling_spider_runner.py", "scrapling_mcp_server.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
     )
     assert_text_contains(
         "install.ps1",
-        ["tools", "collect_prospects.py", "scrapling_prospect_spider.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
+        ["tools", "collect_prospects.py", "scrapling_prospect_spider.py", "scrapling_spider_runner.py", "scrapling_mcp_server.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
     )
     assert_text_contains(
         "create-profile.sh",

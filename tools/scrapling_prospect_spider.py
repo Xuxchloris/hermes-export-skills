@@ -5,7 +5,10 @@ from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urljoin, urlparse
 
-from trade_utils import fetch_url, parse_html, website_key
+try:  # Support both `python tools/x.py` and `from tools.x import ...`.
+    from .trade_utils import fetch_url, parse_html, website_key
+except ImportError:  # pragma: no cover - script execution path.
+    from trade_utils import fetch_url, parse_html, website_key
 
 
 @dataclass

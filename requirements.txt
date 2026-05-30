@@ -1,3 +1,4 @@
 openpyxl>=3.1,<4
 PyYAML>=6,<7
 scrapling[fetchers]>=0.4,<1
+mcp>=1,<2
