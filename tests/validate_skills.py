@@ -187,7 +187,7 @@ def validate_pipeline_tools_contract() -> None:
     )
     assert_text_contains(
         "skills/decision-maker-finder/SKILL.md",
-        ["tools/decision_maker_finder.py", "role", "email_status", "source_url"],
+        ["tools/decision_maker_finder.py", "role", "email_status", "source_url", "contact_search", "phone_result", "没有"],
     )
     assert_text_contains(
         "README.md",

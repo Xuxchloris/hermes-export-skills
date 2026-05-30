@@ -25,6 +25,7 @@ ROLE_PATTERNS = [
 ]
 
 EMAIL_RE = re.compile(r"[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}")
+PHONE_RE = re.compile(r"(?:\+\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?){2,5}\d{2,4}")
 PERSONAL_DOMAINS = {"gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com"}
 
 
@@ -47,21 +48,83 @@ def find_name_for_role(line: str, role: str) -> str:
     return ""
 
 
+def phone_values(text: str) -> list[str]:
+    phones: list[str] = []
+    for match in PHONE_RE.findall(text):
+        value = match.strip(" .,:;")
+        digits = re.sub(r"\D", "", value)
+        if 7 <= len(digits) <= 15 and value not in phones:
+            phones.append(value)
+    return phones
+
+
+def evidence_line(text: str, value: str) -> str:
+    for line in text.splitlines():
+        if value in line:
+            return line.strip()
+    return value
+
+
+def extract_contact_search_from_pages(pages: list[dict[str, str]]) -> dict[str, Any]:
+    emails: list[dict[str, str]] = []
+    phones: list[dict[str, str]] = []
+    seen_emails: set[str] = set()
+    seen_phones: set[str] = set()
+
+    for page in pages:
+        text = page.get("text", "")
+        source_url = page.get("url", "")
+        for email in EMAIL_RE.findall(text):
+            key = email.lower()
+            if key in seen_emails:
+                continue
+            seen_emails.add(key)
+            emails.append(
+                {
+                    "value": email,
+                    "status": email_status(email),
+                    "source_url": source_url,
+                    "evidence": evidence_line(text, email),
+                }
+            )
+        for phone in phone_values(text):
+            key = re.sub(r"\D", "", phone)
+            if key in seen_phones:
+                continue
+            seen_phones.add(key)
+            phones.append(
+                {
+                    "value": phone,
+                    "source_url": source_url,
+                    "evidence": evidence_line(text, phone),
+                }
+            )
+
+    return {
+        "email_result": "found" if emails else "没有",
+        "phone_result": "found" if phones else "没有",
+        "emails": emails,
+        "phones": phones,
+    }
+
+
 def extract_candidates_from_pages(pages: list[dict[str, str]]) -> list[dict[str, Any]]:
     candidates: list[dict[str, Any]] = []
-    seen: set[tuple[str, str, str]] = set()
+    seen: set[tuple[str, str, str, str]] = set()
     for page in pages:
         text = page.get("text", "")
         lines = [line.strip() for line in text.splitlines() if line.strip()]
         all_emails = EMAIL_RE.findall(text)
+        all_phones = phone_values(text)
         for index, line in enumerate(lines):
             nearby = "\n".join(lines[max(0, index - 2) : index + 3])
             for role in ROLE_PATTERNS:
                 if role.lower() not in line.lower() and role.lower() not in nearby.lower():
                     continue
                 email = (EMAIL_RE.findall(nearby) or all_emails or [""])[0]
+                phone = (phone_values(nearby) or all_phones or [""])[0]
                 name = find_name_for_role(line, role)
-                key = (role, email, page["url"])
+                key = (role, email, phone, page["url"])
                 if key in seen:
                     continue
                 seen.add(key)
@@ -71,6 +134,8 @@ def extract_candidates_from_pages(pages: list[dict[str, str]]) -> list[dict[str,
                         "role": role,
                         "email": email,
                         "email_status": email_status(email) if email else "missing",
+                        "phone": phone,
+                        "phone_status": "found" if phone else "missing",
                         "confidence": "high" if email else "medium",
                         "source_url": page["url"],
                         "evidence": line,
@@ -82,9 +147,11 @@ def extract_candidates_from_pages(pages: list[dict[str, str]]) -> list[dict[str,
 def find_decision_makers(website: str, scraping: dict[str, Any] | None = None) -> dict[str, Any]:
     pages = crawl_company_pages(website, max_pages=5, scraping=scraping)
     candidates = extract_candidates_from_pages(pages)
+    contact_search = extract_contact_search_from_pages(pages)
     return {
         "website": website,
         "pages_checked": [page["url"] for page in pages],
+        "contact_search": contact_search,
         "candidates": candidates,
         "review_notes": [] if candidates else ["No decision-maker clue found in checked pages."],
     }
@@ -128,6 +195,8 @@ def contact_api_candidates(discovery_path: Path | None, website: str, company_na
             "role": load_json_path(mapping.get("role", "role"), item) or "",
             "email": load_json_path(mapping.get("email", "email"), item) or "",
             "email_status": "api_verified",
+            "phone": load_json_path(mapping.get("phone", "phone"), item) or "",
+            "phone_status": "found" if load_json_path(mapping.get("phone", "phone"), item) else "missing",
             "confidence": "high",
             "source_url": load_json_path(mapping.get("source_url", "source_url"), item) or api.get("endpoint", ""),
             "evidence": "Contact enrichment API result",

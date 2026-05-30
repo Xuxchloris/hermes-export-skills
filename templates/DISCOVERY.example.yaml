@@ -55,6 +55,7 @@ contact_enrichment_api:
     name: "name"
     role: "role"
     email: "email"
+    phone: "phone"
     source_url: "source_url"
   rate_limit:
     requests_per_minute: 20

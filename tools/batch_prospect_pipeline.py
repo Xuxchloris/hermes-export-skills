@@ -155,7 +155,16 @@ def run_pipeline(
         subject, body, draft_status = make_email(row["company_name"], first_evidence, product_name)
         recommended_action = "draft_outreach" if status == "verified" and fit["priority"] in {"A", "B"} else "manual_review"
 
-        enriched_rows.append({**row, "matched_terms": fit["matched_terms"], "decision_maker_count": len(decision_makers["candidates"])})
+        contact_search = decision_makers.get("contact_search", {})
+        enriched_rows.append(
+            {
+                **row,
+                "matched_terms": fit["matched_terms"],
+                "decision_maker_count": len(decision_makers["candidates"]),
+                "email_result": contact_search.get("email_result", "没有"),
+                "phone_result": contact_search.get("phone_result", "没有"),
+            }
+        )
         score_rows.append(
             {
                 "company_name": row["company_name"],
@@ -188,6 +197,7 @@ def run_pipeline(
                 "fetch_errors": [page["error"] for page in pages if page.get("error")],
                 "score": fit,
                 "decision_makers": decision_makers["candidates"],
+                "contact_search": contact_search,
             }
         )
 

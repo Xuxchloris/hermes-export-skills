@@ -213,6 +213,56 @@ contact_enrichment_api:
             server.shutdown()
             server.server_close()
 
+    def test_decision_maker_finder_forces_contact_search_and_reports_none(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            contact_site = temp_path / "contact-only.html"
+            contact_site.write_text(
+                "<!doctype html><html><body>"
+                "<h1>Contact Export Supply</h1>"
+                "<p>Email: sales@exportsupply.test</p>"
+                "<p>Phone: +1 555-010-9000</p>"
+                "</body></html>",
+                encoding="utf-8",
+            )
+            output_path = temp_path / "decision_makers.json"
+
+            result = self.run_script(
+                "decision_maker_finder.py",
+                "--website",
+                contact_site.as_uri(),
+                "--output",
+                str(output_path),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            data = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(data["contact_search"]["email_result"], "found")
+            self.assertEqual(data["contact_search"]["phone_result"], "found")
+            self.assertEqual(data["contact_search"]["emails"][0]["value"], "sales@exportsupply.test")
+            self.assertEqual(data["contact_search"]["phones"][0]["value"], "+1 555-010-9000")
+
+            no_contact_site = temp_path / "no-contact.html"
+            no_contact_site.write_text(
+                "<!doctype html><html><body><h1>No Contact Listed</h1></body></html>",
+                encoding="utf-8",
+            )
+            no_contact_output = temp_path / "no_contact_decision_makers.json"
+            result = self.run_script(
+                "decision_maker_finder.py",
+                "--website",
+                no_contact_site.as_uri(),
+                "--output",
+                str(no_contact_output),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            no_contact_data = json.loads(no_contact_output.read_text(encoding="utf-8"))
+            self.assertEqual(no_contact_data["contact_search"]["email_result"], "没有")
+            self.assertEqual(no_contact_data["contact_search"]["phone_result"], "没有")
+            self.assertEqual(no_contact_data["contact_search"]["emails"], [])
+            self.assertEqual(no_contact_data["contact_search"]["phones"], [])
+
     def test_batch_pipeline_outputs_enriched_workbooks_and_email_drafts(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
