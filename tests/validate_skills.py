@@ -31,6 +31,7 @@ REQUIRED_ROOT_FILES = [
     "requirements.txt",
     "tools/render_quotation.py",
     "tools/collect_prospects.py",
+    "tools/scrapling_prospect_spider.py",
     "tools/batch_prospect_pipeline.py",
     "tools/decision_maker_finder.py",
     "examples/quotation.example.json",
@@ -157,6 +158,16 @@ def validate_discovery_contract() -> None:
             "company-research",
             "prospect-scoring",
             "do not use browser navigation as the default customer-discovery path",
+            "prospect_search_tasks.csv",
+            "Do not manually browse arbitrary B2B platforms",
+            "Search tasks are not treated as customer results",
+            "source_status",
+            "source_unavailable",
+            "Do not return a numbered customer list",
+            "prospects.raw.csv",
+            "scrapling_spider",
+            "source_urls",
+            "crawl_report.json",
             "--product-query",
             "--sku",
         ],
@@ -174,6 +185,9 @@ def validate_discovery_contract() -> None:
             "rate_limit",
             "retry_policy",
             "contact_enrichment_api",
+            "discovery_mode",
+            "scrapling_spider",
+            "source_urls",
             "scraping",
             "scrapling",
         ],
@@ -187,7 +201,7 @@ def validate_discovery_contract() -> None:
 def validate_pipeline_tools_contract() -> None:
     assert_text_contains(
         "skills/prospect-discovery/SKILL.md",
-        ["tools/collect_prospects.py", "search tasks", "prospects.raw.csv", "--product-query", "--sku"],
+        ["tools/collect_prospects.py", "tools/scrapling_prospect_spider.py", "search tasks", "prospects.raw.csv", "--product-query", "--sku"],
     )
     assert_text_contains(
         "skills/prospect-list-enrichment/SKILL.md",
@@ -269,6 +283,7 @@ def validate_router_contract() -> None:
             "follow-up-planner",
             "quotation-generator",
             "tools/collect_prospects.py",
+            "tools/scrapling_prospect_spider.py",
             "tools/batch_prospect_pipeline.py",
             "tools/decision_maker_finder.py",
             "tools/render_quotation.py",
@@ -302,11 +317,11 @@ def validate_bootstrap_contract() -> None:
     )
     assert_text_contains(
         "install.sh",
-        ["tools", "collect_prospects.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
+        ["tools", "collect_prospects.py", "scrapling_prospect_spider.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
     )
     assert_text_contains(
         "install.ps1",
-        ["tools", "collect_prospects.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
+        ["tools", "collect_prospects.py", "scrapling_prospect_spider.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
     )
     assert_text_contains(
         "create-profile.sh",

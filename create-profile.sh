@@ -25,6 +25,7 @@ cp "$ROOT_DIR/templates/PRICING.example.yaml" "$PROFILE_DIR/data/config/PRICING.
 cp "$ROOT_DIR/templates/DISCOVERY.example.yaml" "$PROFILE_DIR/data/config/DISCOVERY.yaml"
 cp "$ROOT_DIR/templates/.env.example" "$PROFILE_DIR/.env.example"
 cp "$ROOT_DIR/tools/collect_prospects.py" "$PROFILE_DIR/tools/collect_prospects.py"
+cp "$ROOT_DIR/tools/scrapling_prospect_spider.py" "$PROFILE_DIR/tools/scrapling_prospect_spider.py"
 cp "$ROOT_DIR/tools/batch_prospect_pipeline.py" "$PROFILE_DIR/tools/batch_prospect_pipeline.py"
 cp "$ROOT_DIR/tools/decision_maker_finder.py" "$PROFILE_DIR/tools/decision_maker_finder.py"
 cp "$ROOT_DIR/tools/render_quotation.py" "$PROFILE_DIR/tools/render_quotation.py"

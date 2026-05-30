@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 import json
 
+from scrapling_prospect_spider import collect_from_sources
 from trade_utils import load_json_path, load_yaml, render_template, select_product_config, sleep_for_rate_limit, write_csv, write_json
 
 
@@ -108,7 +109,21 @@ def main() -> int:
     product_config = load_yaml(args.product)
     product_config = select_product_config(product_config, args.product_query, args.sku)
     api = discovery.get("collection_api", {})
+    spider_cfg = discovery.get("scrapling_spider", {})
+    discovery_mode = str(discovery.get("discovery_mode", "")).strip().lower()
     args.output_dir.mkdir(parents=True, exist_ok=True)
+
+    if discovery_mode == "scrapling_spider" or spider_cfg.get("enabled"):
+        rows, report = collect_from_sources(discovery, product_config)
+        write_json(args.output_dir / "crawl_report.json", report)
+        if rows:
+            fields = ["company_name", "website", "country", "business_type", "source_url", "evidence_summary", "risk_notes"]
+            write_csv(args.output_dir / "prospects.raw.csv", rows, fields)
+            write_json(args.output_dir / "prospects.raw.json", rows)
+            print(f"Raw prospects: {args.output_dir / 'prospects.raw.csv'}")
+        else:
+            print(f"Source status: {report['source_status']}")
+        return 0
 
     if api.get("provider", "none") == "none" or not api.get("endpoint"):
         tasks = build_search_tasks(discovery, product_config)

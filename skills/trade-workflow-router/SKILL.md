@@ -48,7 +48,7 @@ When the user already asks for a specific task, route directly to the matching s
    9. Create a quotation draft
    10. Export quotation HTML, PDF, or Excel files
 2. Ask the user to choose one item or describe the desired result in their own words.
-3. Route prospect collection to `prospect-discovery`; use `tools/collect_prospects.py` when file output is needed.
+3. Route prospect collection to `prospect-discovery`; use `tools/collect_prospects.py` when file output is needed. If `DISCOVERY.yaml` sets `discovery_mode: "scrapling_spider"` or `scrapling_spider.enabled: true`, `collect_prospects.py` uses `tools/scrapling_prospect_spider.py` and writes `prospects.raw.csv`, `prospects.raw.json`, and `crawl_report.json`.
 4. Route batch list processing to `prospect-list-enrichment`; use `tools/batch_prospect_pipeline.py` when one-step file output is needed.
 5. Route website background research to `company-research`.
 6. Route ranking and qualification to `prospect-scoring`.
@@ -68,6 +68,7 @@ When the user already asks for a specific task, route directly to the matching s
 - The selected workflow lists missing inputs before execution.
 - The router does not claim completion before the selected downstream workflow finishes.
 - Website and list workflows are based on fetched evidence, not generic examples.
+- Prospect discovery with configured public source URLs produces `crawl_report.json`; if no rows are found, report that status instead of inventing prospects.
 - The router offers a relevant next step after each completed workflow.
 
 ## Common Mistakes

@@ -38,6 +38,17 @@ scraping:
   network_idle: true
   stealthy_headers: true
 
+discovery_mode: "search_tasks"
+
+scrapling_spider:
+  enabled: false
+  robots_txt_obey: true
+  concurrent_requests: 5
+  crawl_delay_seconds: 2
+  max_pages_per_source: 20
+  checkpoint_dir: "data/crawl-checkpoints"
+  source_urls: []
+
 contact_enrichment_api:
   provider: "none"
   endpoint: ""

@@ -36,6 +36,7 @@ profiles/<customer>/
   data/follow-ups/
   tools/
     collect_prospects.py
+    scrapling_prospect_spider.py
     batch_prospect_pipeline.py
     decision_maker_finder.py
     render_quotation.py
@@ -56,6 +57,14 @@ python tools/collect_prospects.py --discovery data/config/DISCOVERY.yaml --produ
 python tools/batch_prospect_pipeline.py --input data/prospects/prospects.raw.csv --product data/config/PRODUCT.yaml --market data/config/MARKET.yaml --tone data/config/TONE.yaml --discovery data/config/DISCOVERY.yaml --output-dir data/reports
 python tools/decision_maker_finder.py --website https://example.com --output data/reports/decision-makers.json
 ```
+
+When `DISCOVERY.yaml` uses `discovery_mode: "scrapling_spider"` and provides `scrapling_spider.source_urls`, the same `collect_prospects.py` command fetches those public source pages and writes:
+
+- `data/prospects/prospects.raw.csv`
+- `data/prospects/prospects.raw.json`
+- `data/prospects/crawl_report.json`
+
+When no API or source URL is configured, it writes auditable search tasks instead of inventing customer records.
 
 ## Scrapling Backend
 

@@ -139,6 +139,19 @@ python tools/collect_prospects.py \
 
 客户发现默认先走本地工具。没有采集 API 时，工具只生成可审计的搜索任务，不会把平台搜索页当成已经抓到的客户名单；拿到候选公司后，再用 Scrapling 抓客户官网做背调。
 
+如果你已经有公开目录页、展会展商页或行业名单页，可以在 `DISCOVERY.yaml` 里设置 `discovery_mode: "scrapling_spider"` 并填写 `scrapling_spider.source_urls`。这时同一条命令会输出 `prospects.raw.csv`、`prospects.raw.json` 和 `crawl_report.json`。
+
+```yaml
+discovery_mode: "scrapling_spider"
+scrapling_spider:
+  enabled: true
+  source_urls:
+    - name: "Example trade show exhibitors"
+      url: "https://example.com/exhibitors"
+      source_type: "trade_show"
+      country: "United States"
+```
+
 有客户名单后，运行批量流水线：
 
 ```bash

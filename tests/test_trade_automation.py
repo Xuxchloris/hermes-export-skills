@@ -71,6 +71,81 @@ class TradeAutomationTests(unittest.TestCase):
             self.assertIn("solar generator", keywords)
             self.assertNotIn("folding camping table", keywords)
 
+    def test_collect_prospects_uses_scrapling_spider_mode_for_source_urls(self) -> None:
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self) -> None:  # noqa: N802 - stdlib callback name.
+                pages = {
+                    "/directory": (
+                        "<html><body>"
+                        "<h1>Outdoor distributor directory</h1>"
+                        "<p>Verified folding camping table and outdoor retail suppliers.</p>"
+                        '<a href="/alpha.html">Alpha Outdoor Supply</a>'
+                        '<a href="/beta.html">Beta Garden Wholesale</a>'
+                        "</body></html>"
+                    ),
+                    "/alpha.html": "<html><body><h1>Alpha Outdoor Supply</h1></body></html>",
+                    "/beta.html": "<html><body><h1>Beta Garden Wholesale</h1></body></html>",
+                }
+                body = pages.get(self.path, "<html><body>missing</body></html>").encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format: str, *args: object) -> None:
+                return
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        thread = Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                temp_path = Path(temp_dir)
+                discovery = temp_path / "DISCOVERY.yaml"
+                discovery.write_text(
+                    f"""
+discovery_mode: "scrapling_spider"
+scraping:
+  engine: "http"
+scrapling_spider:
+  enabled: true
+  source_urls:
+    - name: "Local directory"
+      url: "http://127.0.0.1:{server.server_port}/directory"
+      source_type: "industry_directory"
+      country: "United States"
+default_regions:
+  - "United States"
+""",
+                    encoding="utf-8",
+                )
+                output_dir = temp_path / "spider"
+
+                result = self.run_script(
+                    "collect_prospects.py",
+                    "--discovery",
+                    str(discovery),
+                    "--product",
+                    str(ROOT / "templates" / "PRODUCT.example.yaml"),
+                    "--output-dir",
+                    str(output_dir),
+                )
+
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertTrue((output_dir / "prospects.raw.csv").exists())
+                self.assertFalse((output_dir / "prospect_search_tasks.csv").exists())
+                with (output_dir / "prospects.raw.csv").open(encoding="utf-8") as handle:
+                    rows = list(csv.DictReader(handle))
+                names = {row["company_name"] for row in rows}
+                self.assertEqual(names, {"Alpha Outdoor Supply", "Beta Garden Wholesale"})
+                report = json.loads((output_dir / "crawl_report.json").read_text(encoding="utf-8"))
+                self.assertEqual(report["source_status"], "verified")
+                self.assertEqual(report["candidates_found"], 2)
+        finally:
+            server.shutdown()
+            server.server_close()
+
     def test_batch_pipeline_selects_product_from_catalog_without_rewriting_config(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)

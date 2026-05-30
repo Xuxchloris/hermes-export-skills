@@ -9,6 +9,7 @@ New-Item -ItemType Directory -Force -Path $SkillDir | Out-Null
 New-Item -ItemType Directory -Force -Path $ToolDir | Out-Null
 Copy-Item -Path (Join-Path $RootDir "skills\*") -Destination $SkillDir -Recurse -Force
 Copy-Item -Path (Join-Path $RootDir "tools\collect_prospects.py") -Destination (Join-Path $ToolDir "collect_prospects.py") -Force
+Copy-Item -Path (Join-Path $RootDir "tools\scrapling_prospect_spider.py") -Destination (Join-Path $ToolDir "scrapling_prospect_spider.py") -Force
 Copy-Item -Path (Join-Path $RootDir "tools\batch_prospect_pipeline.py") -Destination (Join-Path $ToolDir "batch_prospect_pipeline.py") -Force
 Copy-Item -Path (Join-Path $RootDir "tools\decision_maker_finder.py") -Destination (Join-Path $ToolDir "decision_maker_finder.py") -Force
 Copy-Item -Path (Join-Path $RootDir "tools\render_quotation.py") -Destination (Join-Path $ToolDir "render_quotation.py") -Force
