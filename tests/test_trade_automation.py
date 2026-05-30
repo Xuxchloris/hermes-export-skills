@@ -139,6 +139,11 @@ default_regions:
                     rows = list(csv.DictReader(handle))
                 names = {row["company_name"] for row in rows}
                 self.assertEqual(names, {"Alpha Outdoor Supply", "Beta Garden Wholesale"})
+                for row in rows:
+                    self.assertEqual(row["contact_email"], "没有")
+                    self.assertEqual(row["contact_phone"], "没有")
+                    self.assertEqual(row["email_result"], "没有")
+                    self.assertEqual(row["phone_result"], "没有")
                 report = json.loads((output_dir / "crawl_report.json").read_text(encoding="utf-8"))
                 self.assertEqual(report["source_status"], "verified")
                 self.assertEqual(report["candidates_found"], 2)
@@ -202,6 +207,8 @@ default_regions:
                             "country": "United States",
                             "business_type": "distributor",
                             "source_url": "http://local-api/source",
+                            "email": "buyer@api-buyer.example",
+                            "phone": "+1 555-010-2200",
                         }
                     ]
                 }
@@ -238,6 +245,8 @@ collection_api:
     country: "country"
     business_type: "business_type"
     source_url: "source_url"
+    email: "email"
+    phone: "phone"
   pagination:
     max_pages: 1
     page_size: 10
@@ -263,6 +272,10 @@ default_regions:
                 with (output_dir / "prospects.raw.csv").open(encoding="utf-8") as handle:
                     rows = list(csv.DictReader(handle))
                 self.assertEqual(rows[0]["company_name"], "API Outdoor Buyer")
+                self.assertEqual(rows[0]["contact_email"], "buyer@api-buyer.example")
+                self.assertEqual(rows[0]["contact_phone"], "+1 555-010-2200")
+                self.assertEqual(rows[0]["email_result"], "found")
+                self.assertEqual(rows[0]["phone_result"], "found")
         finally:
             server.shutdown()
             server.server_close()
@@ -443,6 +456,13 @@ contact_enrichment_api:
 
             score_book = load_workbook(scores)
             self.assertEqual(score_book["Scores"]["B2"].value, "A")
+            enriched_book = load_workbook(enriched)
+            prospect_headers = [cell.value for cell in enriched_book["Prospects"][1]]
+            prospect_row = dict(zip(prospect_headers, [cell.value for cell in enriched_book["Prospects"][2]]))
+            self.assertEqual(prospect_row["contact_email"], "purchasing@demooutdoor.test")
+            self.assertEqual(prospect_row["contact_phone"], "没有")
+            self.assertEqual(prospect_row["email_result"], "found")
+            self.assertEqual(prospect_row["phone_result"], "没有")
             email_book = load_workbook(emails)
             body = email_book["Email Drafts"]["D2"].value
             self.assertIn("camping furniture", body)

@@ -13,6 +13,38 @@ from scrapling_spider_runner import apply_runtime_sources, collect_native_spider
 from trade_utils import load_json_path, load_yaml, render_template, select_product_config, sleep_for_rate_limit, write_csv, write_json
 
 
+NO_CONTACT = "没有"
+PROSPECT_FIELDS = [
+    "company_name",
+    "website",
+    "country",
+    "business_type",
+    "source_url",
+    "evidence_summary",
+    "risk_notes",
+    "contact_email",
+    "contact_phone",
+    "email_result",
+    "phone_result",
+]
+
+
+def with_contact_defaults(row: dict[str, Any]) -> dict[str, Any]:
+    contact_email = str(row.get("contact_email") or row.get("email") or "").strip()
+    contact_phone = str(row.get("contact_phone") or row.get("phone") or "").strip()
+    if contact_email == NO_CONTACT:
+        contact_email = ""
+    if contact_phone == NO_CONTACT:
+        contact_phone = ""
+    return {
+        **row,
+        "contact_email": contact_email or NO_CONTACT,
+        "contact_phone": contact_phone or NO_CONTACT,
+        "email_result": "found" if contact_email else NO_CONTACT,
+        "phone_result": "found" if contact_phone else NO_CONTACT,
+    }
+
+
 def product_keywords(product_config: dict[str, Any]) -> list[str]:
     keywords: list[str] = []
     for product in product_config.get("products", []):
@@ -88,6 +120,8 @@ def collect_from_api(discovery: dict[str, Any], product_config: dict[str, Any]) 
                             "source_url": load_json_path(mapping.get("source_url", "source_url"), item) or api.get("endpoint", ""),
                             "evidence_summary": f"Collected for keyword '{keyword}' in {region}.",
                             "risk_notes": "",
+                            "contact_email": load_json_path(mapping.get("email", "email"), item) or "",
+                            "contact_phone": load_json_path(mapping.get("phone", "phone"), item) or "",
                         }
                     )
                 sleep_for_rate_limit(int(rate_limit))
@@ -124,10 +158,10 @@ def main() -> int:
         or spider_cfg.get("enabled")
     ) and spider_cfg.get("runner") != "source_collector":
         rows, report = collect_native_spider(discovery, product_config)
+        rows = [with_contact_defaults(row) for row in rows]
         outputs = {"report": str(args.output_dir / "crawl_report.json")}
         if rows:
-            fields = ["company_name", "website", "country", "business_type", "source_url", "evidence_summary", "risk_notes"]
-            write_csv(args.output_dir / "prospects.raw.csv", rows, fields)
+            write_csv(args.output_dir / "prospects.raw.csv", rows, PROSPECT_FIELDS)
             write_json(args.output_dir / "prospects.raw.json", rows)
             outputs["csv"] = str(args.output_dir / "prospects.raw.csv")
             outputs["json"] = str(args.output_dir / "prospects.raw.json")
@@ -140,10 +174,10 @@ def main() -> int:
 
     if spider_cfg.get("runner") == "source_collector":
         rows, report = collect_from_sources(discovery, product_config)
+        rows = [with_contact_defaults(row) for row in rows]
         write_json(args.output_dir / "crawl_report.json", report)
         if rows:
-            fields = ["company_name", "website", "country", "business_type", "source_url", "evidence_summary", "risk_notes"]
-            write_csv(args.output_dir / "prospects.raw.csv", rows, fields)
+            write_csv(args.output_dir / "prospects.raw.csv", rows, PROSPECT_FIELDS)
             write_json(args.output_dir / "prospects.raw.json", rows)
             print(f"Raw prospects: {args.output_dir / 'prospects.raw.csv'}")
         else:
@@ -157,9 +191,8 @@ def main() -> int:
         print(f"Search tasks: {args.output_dir / 'prospect_search_tasks.csv'}")
         return 0
 
-    rows = collect_from_api(discovery, product_config)
-    fields = ["company_name", "website", "country", "business_type", "source_url", "evidence_summary", "risk_notes"]
-    write_csv(args.output_dir / "prospects.raw.csv", rows, fields)
+    rows = [with_contact_defaults(row) for row in collect_from_api(discovery, product_config)]
+    write_csv(args.output_dir / "prospects.raw.csv", rows, PROSPECT_FIELDS)
     write_json(args.output_dir / "prospects.raw.json", rows)
     print(f"Raw prospects: {args.output_dir / 'prospects.raw.csv'}")
     return 0

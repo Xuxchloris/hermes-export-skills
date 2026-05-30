@@ -44,7 +44,7 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 1. Run `python tools/batch_prospect_pipeline.py --input <prospects.csv|xlsx> --product <PRODUCT.yaml> --market <MARKET.yaml> --tone <TONE.yaml> --discovery <DISCOVERY.yaml> --output-dir <folder>` when one-step batch output is needed.
 2. If the product file is a catalog and the user names one product, add `--product-query <name>` or `--sku <sku>` instead of editing the catalog.
 3. Read CSV or Excel rows without changing the original file.
-4. Normalize column names and map available values to company name, website, country, business type, source URL, source note, and contact clue.
+4. Normalize column names and map available values to company name, website, country, business type, source URL, source note, contact email, contact phone, and contact clue.
 5. Normalize websites by domain and deduplicate rows by domain first, then by normalized company name and country.
 6. Preserve all source URLs and merge useful source notes when duplicates are combined.
 7. Mark rows without company name or website as `needs_review`.
@@ -60,6 +60,7 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 - Batch output includes `prospects.enriched.xlsx`, `research_reports.json`, `scores.xlsx`, and `email_drafts.xlsx`.
 - Duplicate handling preserves source evidence.
 - Every ready row includes company name, website, and source URL.
+- Enriched rows include `contact_email`, `contact_phone`, `email_result`, and `phone_result`; missing contact values are written as `没有`.
 - Missing fields are listed instead of guessed.
 - No generated rows appear in output workbooks.
 - Scoring and email drafts are based on fetched evidence.

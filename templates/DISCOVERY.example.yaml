@@ -17,6 +17,8 @@ collection_api:
     country: "country"
     business_type: "business_type"
     source_url: "source_url"
+    email: "email"
+    phone: "phone"
   pagination:
     mode: "none"
     page_param: "page"
@@ -106,3 +108,7 @@ output_fields:
   - "source_url"
   - "evidence_summary"
   - "risk_notes"
+  - "contact_email"
+  - "contact_phone"
+  - "email_result"
+  - "phone_result"

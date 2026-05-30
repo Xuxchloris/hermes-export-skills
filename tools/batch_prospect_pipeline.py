@@ -41,6 +41,8 @@ def normalize_rows(rows: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], li
             "country": first_value(row, ["country", "market", "region"]),
             "business_type": first_value(row, ["business_type", "type"]),
             "source_url": first_value(row, ["source_url", "source", "source_note"]),
+            "contact_email": first_value(row, ["contact_email", "email"]),
+            "contact_phone": first_value(row, ["contact_phone", "phone"]),
         }
         if not normalized["company_name"] or not normalized["website"]:
             normalized["status"] = "needs_review"
@@ -159,13 +161,19 @@ def run_pipeline(
         recommended_action = "draft_outreach" if status == "verified" and fit["priority"] in {"A", "B"} else "manual_review"
 
         contact_search = decision_makers.get("contact_search", {})
+        found_email = contact_search.get("emails", [{}])[0].get("value", "") if contact_search.get("emails") else ""
+        found_phone = contact_search.get("phones", [{}])[0].get("value", "") if contact_search.get("phones") else ""
+        contact_email = found_email or row.get("contact_email") or "没有"
+        contact_phone = found_phone or row.get("contact_phone") or "没有"
         enriched_rows.append(
             {
                 **row,
                 "matched_terms": fit["matched_terms"],
                 "decision_maker_count": len(decision_makers["candidates"]),
-                "email_result": contact_search.get("email_result", "没有"),
-                "phone_result": contact_search.get("phone_result", "没有"),
+                "contact_email": contact_email,
+                "contact_phone": contact_phone,
+                "email_result": "found" if contact_email != "没有" else contact_search.get("email_result", "没有"),
+                "phone_result": "found" if contact_phone != "没有" else contact_search.get("phone_result", "没有"),
             }
         )
         score_rows.append(

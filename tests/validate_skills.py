@@ -167,6 +167,10 @@ def validate_discovery_contract() -> None:
             "source_unavailable",
             "Do not return a numbered customer list",
             "prospects.raw.csv",
+            "contact_email",
+            "contact_phone",
+            "email_result",
+            "phone_result",
             "scrapling_spider",
             "native_scrapling_spider",
             "tools/scrapling_spider_runner.py",
@@ -192,6 +196,10 @@ def validate_discovery_contract() -> None:
             "contact_enrichment_api",
             "discovery_mode",
             "scrapling_spider",
+            "contact_email",
+            "contact_phone",
+            "email_result",
+            "phone_result",
             "runner",
             "native",
             "concurrent_requests_per_domain",
@@ -215,7 +223,7 @@ def validate_pipeline_tools_contract() -> None:
     )
     assert_text_contains(
         "skills/prospect-list-enrichment/SKILL.md",
-        ["tools/batch_prospect_pipeline.py", "prospects.enriched.xlsx", "email_drafts.xlsx", "--product-query", "--sku"],
+        ["tools/batch_prospect_pipeline.py", "prospects.enriched.xlsx", "email_drafts.xlsx", "contact_email", "contact_phone", "email_result", "phone_result", "--product-query", "--sku"],
     )
     assert_text_contains(
         "skills/decision-maker-finder/SKILL.md",

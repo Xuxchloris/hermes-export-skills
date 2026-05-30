@@ -180,6 +180,10 @@ class ProspectDiscoverySpider(Spider):
                 "source_url": seed.url,
                 "evidence_summary": f"{seed.name or seed.source_type or 'source page'}: {text}",
                 "risk_notes": risk_notes,
+                "contact_email": "没有",
+                "contact_phone": "没有",
+                "email_result": "没有",
+                "phone_result": "没有",
             }
 
     async def on_error(self, request: Request, error: Exception) -> None:
@@ -250,7 +254,19 @@ def run_spider(
     write_json(output_dir / "crawl_report.json", report)
     outputs: dict[str, str] = {"report": str(output_dir / "crawl_report.json")}
     if rows:
-        fields = ["company_name", "website", "country", "business_type", "source_url", "evidence_summary", "risk_notes"]
+        fields = [
+            "company_name",
+            "website",
+            "country",
+            "business_type",
+            "source_url",
+            "evidence_summary",
+            "risk_notes",
+            "contact_email",
+            "contact_phone",
+            "email_result",
+            "phone_result",
+        ]
         write_csv(output_dir / "prospects.raw.csv", rows, fields)
         write_json(output_dir / "prospects.raw.json", rows)
         outputs["csv"] = str(output_dir / "prospects.raw.csv")

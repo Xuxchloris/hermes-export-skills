@@ -129,6 +129,10 @@ def _extract_rows(seed: SourceSeed, html: str, terms: list[str]) -> list[dict[st
                 "source_url": seed.url,
                 "evidence_summary": f"{seed.name or seed.source_type or 'source page'}: {link['text'].strip()}",
                 "risk_notes": seed.source_type,
+                "contact_email": "没有",
+                "contact_phone": "没有",
+                "email_result": "没有",
+                "phone_result": "没有",
                 "_matched": _source_matches_product(text, parser.links, terms),
             }
         )
