@@ -15,19 +15,27 @@ mkdir -p "$PROFILE_DIR/data/config"
 mkdir -p "$PROFILE_DIR/data/prospects" "$PROFILE_DIR/data/reports" "$PROFILE_DIR/data/emails" "$PROFILE_DIR/data/quotations"
 mkdir -p "$PROFILE_DIR/data/replies" "$PROFILE_DIR/data/follow-ups"
 mkdir -p "$PROFILE_DIR/sessions" "$PROFILE_DIR/memory" "$PROFILE_DIR/skills/custom"
+mkdir -p "$PROFILE_DIR/tools"
 
 cp "$ROOT_DIR/templates/PRODUCT.example.yaml" "$PROFILE_DIR/data/config/PRODUCT.yaml"
+cp "$ROOT_DIR/templates/PRODUCTS.catalog.example.yaml" "$PROFILE_DIR/data/config/PRODUCTS.catalog.yaml"
 cp "$ROOT_DIR/templates/MARKET.example.yaml" "$PROFILE_DIR/data/config/MARKET.yaml"
 cp "$ROOT_DIR/templates/TONE.example.yaml" "$PROFILE_DIR/data/config/TONE.yaml"
 cp "$ROOT_DIR/templates/PRICING.example.yaml" "$PROFILE_DIR/data/config/PRICING.yaml"
 cp "$ROOT_DIR/templates/DISCOVERY.example.yaml" "$PROFILE_DIR/data/config/DISCOVERY.yaml"
 cp "$ROOT_DIR/templates/.env.example" "$PROFILE_DIR/.env.example"
+cp "$ROOT_DIR/tools/collect_prospects.py" "$PROFILE_DIR/tools/collect_prospects.py"
+cp "$ROOT_DIR/tools/batch_prospect_pipeline.py" "$PROFILE_DIR/tools/batch_prospect_pipeline.py"
+cp "$ROOT_DIR/tools/decision_maker_finder.py" "$PROFILE_DIR/tools/decision_maker_finder.py"
+cp "$ROOT_DIR/tools/render_quotation.py" "$PROFILE_DIR/tools/render_quotation.py"
+cp "$ROOT_DIR/tools/trade_utils.py" "$PROFILE_DIR/tools/trade_utils.py"
 
 cat > "$PROFILE_DIR/AGENTS.md" <<'EOF'
 # Trade Agent Instructions
 
 - Use `trade-workflow-router` as the entry point when the user mentions foreign trade broadly.
 - Read product data from `data/config/PRODUCT.yaml`.
+- For multiple products, read `data/config/PRODUCTS.catalog.yaml` and pass `--product-query` or `--sku` to profile tools.
 - Read market strategy from `data/config/MARKET.yaml`.
 - Read tone rules from `data/config/TONE.yaml`.
 - Read quotation rules from `data/config/PRICING.yaml`.
@@ -38,6 +46,7 @@ cat > "$PROFILE_DIR/AGENTS.md" <<'EOF'
 - Save quotation drafts in `data/quotations/`.
 - Save classified replies in `data/replies/`.
 - Save follow-up plans in `data/follow-ups/`.
+- Run local automation from this profile's `tools/` directory, such as `python tools/collect_prospects.py`.
 - Never invent company facts, contact names, prices, certifications, or delivery dates.
 - Use approved business sources and record source evidence for each prospect.
 - Emails and quotations require human review before sending.

@@ -300,6 +300,22 @@ def validate_bootstrap_contract() -> None:
         "bootstrap.ps1",
         ["Xuxchloris/hermes-export-skills.git", "requirements.txt", "install.ps1", "create-profile.ps1", "HERMES_HOME"],
     )
+    assert_text_contains(
+        "install.sh",
+        ["tools", "collect_prospects.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
+    )
+    assert_text_contains(
+        "install.ps1",
+        ["tools", "collect_prospects.py", "batch_prospect_pipeline.py", "decision_maker_finder.py", "render_quotation.py"],
+    )
+    assert_text_contains(
+        "create-profile.sh",
+        ["tools", "PRODUCTS.catalog.example.yaml", "collect_prospects.py"],
+    )
+    assert_text_contains(
+        "create-profile.ps1",
+        ["tools", "PRODUCTS.catalog.example.yaml", "collect_prospects.py"],
+    )
 
 
 def main() -> None:

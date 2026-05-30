@@ -93,6 +93,7 @@ $env:HERMES_HOME="$HOME\.hermes"
 
 ```text
 ~/.hermes/profiles/demo-trade-agent/data/config/PRODUCT.yaml
+~/.hermes/profiles/demo-trade-agent/data/config/PRODUCTS.catalog.yaml
 ~/.hermes/profiles/demo-trade-agent/data/config/MARKET.yaml
 ~/.hermes/profiles/demo-trade-agent/data/config/TONE.yaml
 ~/.hermes/profiles/demo-trade-agent/data/config/PRICING.yaml
@@ -105,10 +106,10 @@ $env:HERMES_HOME="$HOME\.hermes"
 
 ```bash
 python tools/collect_prospects.py \
-  --discovery templates/DISCOVERY.example.yaml \
-  --product templates/PRODUCTS.catalog.example.yaml \
+  --discovery data/config/DISCOVERY.yaml \
+  --product data/config/PRODUCTS.catalog.yaml \
   --product-query "portable power station" \
-  --output-dir exports/prospect-collection
+  --output-dir data/prospects
 ```
 
 ## 使用方式
@@ -131,9 +132,9 @@ python tools/collect_prospects.py \
 
 ```bash
 python tools/collect_prospects.py \
-  --discovery templates/DISCOVERY.example.yaml \
-  --product templates/PRODUCT.example.yaml \
-  --output-dir exports/prospect-collection
+  --discovery data/config/DISCOVERY.yaml \
+  --product data/config/PRODUCT.yaml \
+  --output-dir data/prospects
 ```
 
 客户发现默认先走本地工具。没有采集 API 时，工具只生成可审计的搜索任务，不会把平台搜索页当成已经抓到的客户名单；拿到候选公司后，再用 Scrapling 抓客户官网做背调。
@@ -142,12 +143,12 @@ python tools/collect_prospects.py \
 
 ```bash
 python tools/batch_prospect_pipeline.py \
-  --input exports/prospect-collection/prospects.raw.csv \
-  --product templates/PRODUCT.example.yaml \
-  --market templates/MARKET.example.yaml \
-  --tone templates/TONE.example.yaml \
-  --discovery templates/DISCOVERY.example.yaml \
-  --output-dir exports/pipeline
+  --input data/prospects/prospects.raw.csv \
+  --product data/config/PRODUCT.yaml \
+  --market data/config/MARKET.yaml \
+  --tone data/config/TONE.yaml \
+  --discovery data/config/DISCOVERY.yaml \
+  --output-dir data/reports
 ```
 
 单独查决策层线索：

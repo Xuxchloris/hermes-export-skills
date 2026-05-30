@@ -23,6 +23,7 @@ profiles/<customer>/
   AGENTS.md
   .env.example
   data/config/PRODUCT.yaml
+  data/config/PRODUCTS.catalog.yaml
   data/config/MARKET.yaml
   data/config/TONE.yaml
   data/config/PRICING.yaml
@@ -33,6 +34,11 @@ profiles/<customer>/
   data/quotations/
   data/replies/
   data/follow-ups/
+  tools/
+    collect_prospects.py
+    batch_prospect_pipeline.py
+    decision_maker_finder.py
+    render_quotation.py
 ```
 
 Keep private API keys and real customer data out of Git.
@@ -43,12 +49,12 @@ Pull the repository, run the installer again, then restart the Hermes session so
 
 ## Batch Tools
 
-The batch tools write output under `exports/` by default:
+The quick installer also copies automation scripts into each profile's `tools/` directory. Run them from the profile directory when Hermes is using an installed profile:
 
 ```bash
-python tools/collect_prospects.py --discovery templates/DISCOVERY.example.yaml --product templates/PRODUCT.example.yaml --output-dir exports/prospect-collection
-python tools/batch_prospect_pipeline.py --input exports/prospect-collection/prospects.raw.csv --product templates/PRODUCT.example.yaml --market templates/MARKET.example.yaml --tone templates/TONE.example.yaml --discovery templates/DISCOVERY.example.yaml --output-dir exports/pipeline
-python tools/decision_maker_finder.py --website https://example.com --output exports/decision-makers.json
+python tools/collect_prospects.py --discovery data/config/DISCOVERY.yaml --product data/config/PRODUCT.yaml --output-dir data/prospects
+python tools/batch_prospect_pipeline.py --input data/prospects/prospects.raw.csv --product data/config/PRODUCT.yaml --market data/config/MARKET.yaml --tone data/config/TONE.yaml --discovery data/config/DISCOVERY.yaml --output-dir data/reports
+python tools/decision_maker_finder.py --website https://example.com --output data/reports/decision-makers.json
 ```
 
 ## Scrapling Backend
