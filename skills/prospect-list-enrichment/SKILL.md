@@ -9,6 +9,8 @@ description: Use when a trade agent needs to clean, deduplicate, normalize, enri
 
 Prepare CSV and Excel prospect lists for research and scoring. The core rule is to preserve source evidence while turning inconsistent rows into a reviewable company-level queue.
 
+Do not create generated company rows. Every enriched row must come from the user's file or a configured collection output.
+
 ## When to Use
 
 Use this skill when the user provides a CSV or Excel customer list, asks to remove duplicates, wants missing fields flagged, or needs a batch queue for company research.
@@ -47,7 +49,9 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 6. Mark rows without company name or website as `needs_review`.
 7. Mark rows outside the target market or unrelated to the product category as `excluded_rows` with a reason.
 8. Write `prospects.enriched.xlsx`, `research_reports.json`, `scores.xlsx`, and `email_drafts.xlsx` when using the batch pipeline.
-9. Send research-ready rows to `company-research`; send researched rows to `prospect-scoring`.
+9. Treat `research_reports.json` as the source of fetched evidence for scoring and emails.
+10. Do not fill missing company facts from assumptions; use `needs_review`, `fetch_failed`, or `no_evidence`.
+11. Send research-ready rows to `company-research`; send researched rows to `prospect-scoring`.
 
 ## Verification
 
@@ -56,6 +60,8 @@ Use `prospect-discovery` first when the user needs a sourcing strategy instead o
 - Duplicate handling preserves source evidence.
 - Every ready row includes company name, website, and source URL.
 - Missing fields are listed instead of guessed.
+- No generated rows appear in output workbooks.
+- Scoring and email drafts are based on fetched evidence.
 - Research happens before scoring.
 
 ## Common Mistakes

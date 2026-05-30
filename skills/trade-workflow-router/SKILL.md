@@ -57,7 +57,9 @@ When the user already asks for a specific task, route directly to the matching s
 9. Route inbound buyer messages to `reply-classification`.
 10. Route reminders and next-touch timing to `follow-up-planner`.
 11. Route quotations to `quotation-generator`; use `tools/render_quotation.py` for HTML, PDF, or Excel file export.
-12. After completing one workflow, recommend the most relevant next workflow and ask whether the user wants to continue.
+12. When the user provides a website, CSV, Excel file, or discovery configuration, run the tool for the selected workflow before summarizing results.
+13. Do not output company facts, scores, buyer claims, or personalized email lines unless they are backed by fetched evidence from the downstream tool output.
+14. After completing one workflow, recommend the most relevant next workflow and ask whether the user wants to continue.
 
 ## Verification
 
@@ -65,6 +67,7 @@ When the user already asks for a specific task, route directly to the matching s
 - Specific requests route directly to the matching skill.
 - The selected workflow lists missing inputs before execution.
 - The router does not claim completion before the selected downstream workflow finishes.
+- Website and list workflows are based on fetched evidence, not generic examples.
 - The router offers a relevant next step after each completed workflow.
 
 ## Common Mistakes

@@ -75,6 +75,8 @@ def analyze_fit(text: str, terms: list[str], country: str, market_config: dict[s
     activity = 10 if text.strip() else 0
     decision_access = 15 if any(role in lowered for role in ["purchasing manager", "sourcing manager", "category manager", "founder", "owner"]) else 5
     score = min(100, product_fit + channel_value + market_value + activity + decision_access)
+    if not matched_terms:
+        score = min(score, 39)
     priority = "A" if score >= 80 else "B" if score >= 60 else "C" if score >= 40 else "D"
     return {
         "score": score,
@@ -84,16 +86,33 @@ def analyze_fit(text: str, terms: list[str], country: str, market_config: dict[s
     }
 
 
-def make_email(company: str, evidence: str, product_name: str) -> tuple[str, str]:
+def evidence_status(pages: list[dict[str, str]], product_evidence: str) -> str:
+    if product_evidence:
+        return "verified"
+    if any(page.get("text", "").strip() for page in pages):
+        return "no_product_evidence"
+    if any(page.get("error") for page in pages):
+        return "fetch_failed"
+    return "no_evidence"
+
+
+def make_email(company: str, evidence: str, product_name: str) -> tuple[str, str, str]:
     subject = f"{product_name} for {company}"
-    opening = evidence or f"I noticed {company} works in a related outdoor category."
+    if not evidence:
+        body = (
+            "No product overlap was verified from the fetched pages. "
+            "Review this prospect manually before writing a personalized outreach email."
+        )
+        return subject, body, "blocked_no_evidence"
+
+    opening = evidence
     body = (
         f"Hi,\n\n"
         f"{opening} We manufacture {product_name} with export-ready product and packing details.\n\n"
         "If this category is relevant for your team, I can send a short catalog and price range for review.\n\n"
         "Best regards"
     )
-    return subject, body
+    return subject, body, "draft_ready"
 
 
 def run_pipeline(
@@ -121,13 +140,20 @@ def run_pipeline(
         pages = crawl_company_pages(row["website"], max_pages=5, scraping=scraping)
         combined_text = "\n".join(page.get("text", "") for page in pages)
         first_evidence = ""
+        first_evidence_url = ""
         for line in combined_text.splitlines():
             if any(term.lower() in line.lower() for term in terms):
                 first_evidence = line.strip()
+                for page in pages:
+                    if first_evidence in page.get("text", ""):
+                        first_evidence_url = page["url"]
+                        break
                 break
         fit = analyze_fit(combined_text, terms, row.get("country", ""), market_config)
+        status = evidence_status(pages, first_evidence)
         decision_makers = find_decision_makers(row["website"], scraping=scraping)
-        subject, body = make_email(row["company_name"], first_evidence, product_name)
+        subject, body, draft_status = make_email(row["company_name"], first_evidence, product_name)
+        recommended_action = "draft_outreach" if status == "verified" and fit["priority"] in {"A", "B"} else "manual_review"
 
         enriched_rows.append({**row, "matched_terms": fit["matched_terms"], "decision_maker_count": len(decision_makers["candidates"])})
         score_rows.append(
@@ -137,7 +163,8 @@ def run_pipeline(
                 "score": fit["score"],
                 "matched_terms": fit["matched_terms"],
                 "matched_channels": fit["matched_channels"],
-                "recommended_action": "draft_outreach" if fit["priority"] in {"A", "B"} else "manual_review",
+                "evidence_status": status,
+                "recommended_action": recommended_action,
             }
         )
         email_rows.append(
@@ -146,6 +173,7 @@ def run_pipeline(
                 "priority": fit["priority"],
                 "subject": subject,
                 "body": body,
+                "draft_status": draft_status,
                 "human_review_required": True,
             }
         )
@@ -155,6 +183,9 @@ def run_pipeline(
                 "website": row["website"],
                 "pages_checked": [page["url"] for page in pages],
                 "summary_evidence": first_evidence,
+                "summary_evidence_url": first_evidence_url,
+                "evidence_status": status,
+                "fetch_errors": [page["error"] for page in pages if page.get("error")],
                 "score": fit,
                 "decision_makers": decision_makers["candidates"],
             }

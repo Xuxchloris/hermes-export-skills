@@ -19,6 +19,7 @@ Do not use it to fabricate contact names or emails.
 
 - Company name
 - Website URL or pasted website content
+- Tool output from `tools/batch_prospect_pipeline.py` or `tools/decision_maker_finder.py` when a URL/list is provided
 - Product context from `product-loader`
 - Market context from `MARKET.yaml`
 
@@ -32,6 +33,7 @@ Do not use it to fabricate contact names or emails.
   "target_customers": "",
   "countries_served": [],
   "evidence": [],
+  "evidence_status": "verified|no_evidence|fetch_failed",
   "possible_needs": [],
   "personalization_points": [],
   "decision_maker_clues": [],
@@ -42,18 +44,23 @@ Do not use it to fabricate contact names or emails.
 
 ## Procedure
 
-1. Read the provided website content or browsing result.
-2. Extract observed facts: products, business type, brands, market focus, contact page, about page, and catalog clues.
-3. Identify business type using evidence: importer, distributor, wholesaler, retailer, brand owner, manufacturer, contractor, marketplace seller, or unrelated site.
-4. Compare observed facts against the product context.
-5. Create `possible_needs` only when there is visible product, category, application, or channel overlap.
-6. Create personalization points from concrete website facts, not generic praise.
-7. Flag red flags: no business relevance, consumer-only content, inactive website, unverifiable contact, unrelated industry, or low-quality scraped directory.
-8. Return confidence based on evidence quantity and recency.
+1. If the user provides a URL or list file and no fetched content, run `tools/batch_prospect_pipeline.py` or the relevant crawler-backed tool first. Required command reference: run tools/batch_prospect_pipeline.py before scoring or email drafting.
+2. Read the provided website content, browsing result, or `research_reports.json` output.
+3. Do not output company facts without fetched evidence. If fetching fails, return `evidence_status: "fetch_failed"` and stop at review notes.
+4. Extract observed facts: products, business type, brands, market focus, contact page, about page, and catalog clues.
+5. Record every fact with an evidence URL and short evidence text.
+6. Identify business type using evidence: importer, distributor, wholesaler, retailer, brand owner, manufacturer, contractor, marketplace seller, or unrelated site.
+7. Compare observed facts against the product context.
+8. Create `possible_needs` only when there is visible product, category, application, or channel overlap.
+9. If fetched pages contain no relevant product or channel clue, return `evidence_status: "no_evidence"` and keep confidence low.
+10. Create personalization points from concrete website facts, not generic praise.
+11. Flag red flags: no business relevance, consumer-only content, inactive website, unverifiable contact, unrelated industry, or low-quality scraped directory.
+12. Return confidence based on evidence quantity and recency.
 
 ## Verification
 
 - Every personalization point has website evidence.
+- Every observed fact includes an evidence URL.
 - Inferences are labeled as possible needs, not facts.
 - No contact name is invented.
 - Red flags are present when the website is weak or unrelated.

@@ -255,6 +255,60 @@ contact_enrichment_api:
             self.assertIn("camping furniture", body)
             self.assertIn("Folding Camping Table", body)
 
+    def test_batch_pipeline_blocks_email_when_product_evidence_is_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+            unrelated_site = temp_path / "unrelated.html"
+            unrelated_site.write_text(
+                "<!doctype html><html><body>"
+                "<h1>Metro Accounting Group</h1>"
+                "<p>We provide tax filing, bookkeeping, and payroll services for local companies.</p>"
+                "</body></html>",
+                encoding="utf-8",
+            )
+            discovery = temp_path / "DISCOVERY.yaml"
+            discovery.write_text("scraping:\n  engine: \"http\"\n", encoding="utf-8")
+            input_csv = temp_path / "prospects.csv"
+            input_csv.write_text(
+                "company_name,website,country,source_url\n"
+                f"Metro Accounting,{unrelated_site.as_uri()},United States,fixture-unrelated\n",
+                encoding="utf-8",
+            )
+            output_dir = temp_path / "pipeline"
+
+            result = self.run_script(
+                "batch_prospect_pipeline.py",
+                "--input",
+                str(input_csv),
+                "--product",
+                str(ROOT / "templates" / "PRODUCT.example.yaml"),
+                "--market",
+                str(ROOT / "templates" / "MARKET.example.yaml"),
+                "--tone",
+                str(ROOT / "templates" / "TONE.example.yaml"),
+                "--discovery",
+                str(discovery),
+                "--output-dir",
+                str(output_dir),
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            email_book = load_workbook(output_dir / "email_drafts.xlsx")
+            email_sheet = email_book["Email Drafts"]
+            email_headers = [cell.value for cell in email_sheet[1]]
+            email_row = dict(zip(email_headers, [cell.value for cell in email_sheet[2]]))
+            self.assertEqual(email_row["draft_status"], "blocked_no_evidence")
+            self.assertNotIn("works in a related outdoor category", email_row["body"])
+            self.assertIn("No product overlap was verified", email_row["body"])
+
+            score_book = load_workbook(output_dir / "scores.xlsx")
+            score_headers = [cell.value for cell in score_book["Scores"][1]]
+            score_row = dict(zip(score_headers, [cell.value for cell in score_book["Scores"][2]]))
+            self.assertEqual(score_row["recommended_action"], "manual_review")
+
+            reports = json.loads((output_dir / "research_reports.json").read_text(encoding="utf-8"))
+            self.assertEqual(reports[0]["evidence_status"], "no_product_evidence")
+
 
 if __name__ == "__main__":
     unittest.main()

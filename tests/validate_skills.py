@@ -201,6 +201,51 @@ def validate_pipeline_tools_contract() -> None:
     )
 
 
+def validate_evidence_contract() -> None:
+    assert_text_contains(
+        "skills/trade-workflow-router/SKILL.md",
+        [
+            "run the tool",
+            "do not output company facts",
+            "fetched evidence",
+        ],
+    )
+    assert_text_contains(
+        "skills/company-research/SKILL.md",
+        [
+            "run tools/batch_prospect_pipeline.py",
+            "evidence url",
+            "do not output company facts without fetched evidence",
+            "fetch_failed",
+            "no_evidence",
+        ],
+    )
+    assert_text_contains(
+        "skills/prospect-list-enrichment/SKILL.md",
+        [
+            "research_reports.json",
+            "fetched evidence",
+            "no generated rows",
+        ],
+    )
+    assert_text_contains(
+        "skills/email-crafting/SKILL.md",
+        [
+            "blocked_no_evidence",
+            "personalization_evidence",
+            "do not invent",
+        ],
+    )
+    assert_text_contains(
+        "skills/prospect-scoring/SKILL.md",
+        [
+            "no_evidence",
+            "fetch_failed",
+            "manual_review",
+        ],
+    )
+
+
 def validate_router_contract() -> None:
     assert_text_contains(
         "skills/trade-workflow-router/SKILL.md",
@@ -261,6 +306,7 @@ def main() -> None:
     validate_quotation_exports()
     validate_discovery_contract()
     validate_pipeline_tools_contract()
+    validate_evidence_contract()
     validate_router_contract()
     validate_quick_start_example()
     validate_bootstrap_contract()

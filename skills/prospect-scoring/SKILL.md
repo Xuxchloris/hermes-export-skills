@@ -30,6 +30,7 @@ Do not use it when there is no product context.
   "priority": "A|B|C|D",
   "score_breakdown": {},
   "recommended_action": "",
+  "evidence_status": "verified|no_evidence|fetch_failed",
   "reason": "",
   "evidence": [],
   "risk_notes": []
@@ -44,17 +45,20 @@ Do not use it when there is no product context.
 4. Score target-market value from 0 to 10.
 5. Score website quality and business activity from 0 to 10.
 6. Apply risk adjustment from 0 to -10 for weak evidence, unrelated business, suspicious contact data, or compliance concerns.
-7. Assign priority:
+7. If evidence status is `fetch_failed` or `no_evidence`, cap priority at D and set `recommended_action` to `manual_review`.
+8. If no product or channel evidence was fetched, do not assign A or B even when the market is relevant.
+9. Assign priority:
    - A: 80-100, contact first
    - B: 60-79, contact after manual review
    - C: 40-59, keep for monitoring or enrichment
    - D: 0-39, do not contact
-8. Provide a recommended next action.
+10. Provide a recommended next action.
 
 ## Verification
 
 - Score breakdown totals equal final score.
 - Priority matches the score range.
+- A or B priority requires fetched evidence for product or channel fit.
 - A-level prospects include at least two evidence points.
 - D-level prospects are not recommended for outreach.
 - Risk notes explain every deduction.

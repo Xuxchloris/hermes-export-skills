@@ -29,6 +29,7 @@ Do not use it to send email automatically.
 {
   "subject": "",
   "body": "",
+  "draft_status": "draft_ready|blocked_no_evidence",
   "cta": "",
   "personalization_evidence": [],
   "review_notes": []
@@ -38,22 +39,25 @@ Do not use it to send email automatically.
 ## Procedure
 
 1. Confirm the prospect priority is A or B. For C prospects, write only if the user explicitly asks. For D prospects, recommend no outreach.
-2. Select one concrete personalization point from company research.
-3. Select one matching product value point from product context.
-4. Write a short subject line without spammy wording.
-5. Write 120-160 words unless the user requests a different length.
-6. Structure the body:
+2. Check `personalization_evidence`. If no fetched evidence is present, return `draft_status: "blocked_no_evidence"` and explain what evidence is missing.
+3. Do not invent company activity, buyer intent, product interest, contact names, or sourcing needs.
+4. Select one concrete personalization point from company research.
+5. Select one matching product value point from product context.
+6. Write a short subject line without spammy wording.
+7. Write 120-160 words unless the user requests a different length.
+8. Structure the body:
    - opening line based on prospect evidence
    - product relevance
    - one proof point such as certification, specification, or manufacturing capability
    - light CTA
    - signature
-7. Add an opt-out line for regions where cold outreach compliance requires it.
-8. Return review notes for any uncertain claims.
+9. Add an opt-out line for regions where cold outreach compliance requires it.
+10. Return review notes for any uncertain claims.
 
 ## Verification
 
 - The email includes at least one evidence-backed personalization point.
+- `blocked_no_evidence` is used when personalization evidence is missing.
 - The email does not claim the prospect buys the product unless evidence says so.
 - The email does not include unapproved prices.
 - The CTA is light and specific.
