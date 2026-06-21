@@ -102,6 +102,18 @@ $env:HERMES_HOME="$HOME\.hermes"
 
 模板在 [templates](templates/) 目录。
 
+### 可选：接入 Apollo / Hunter API
+
+默认不配 API 时，客户发现只生成搜索任务，联系人靠抓公司官网。如果要自动拉客户名单或补全邮箱，可参考以下示例配置（API key 只通过环境变量传入，不要写进文件）：
+
+| 配置示例 | 覆盖环节 | 需要的 key |
+| --- | --- | --- |
+| `templates/DISCOVERY.apollo.example.yaml` | 客户发现 + 邮箱（一个 key 跑全链路） | `APOLLO_API_KEY` |
+| `templates/DISCOVERY.hunter-full.example.yaml` | 客户发现 + 邮箱（一个 key 跑全链路） | `HUNTER_API_KEY` |
+| `templates/DISCOVERY.hunter.example.yaml` | 仅联系人邮箱补全 | `HUNTER_API_KEY` |
+
+只买一个就够：Apollo 公司库更大、销售筛选维度多；Hunter 邮箱准确率口碑好。两者都能单独跑通「找客户 + 拿邮箱」。
+
 如果你有多个产品，不需要每次重写 `PRODUCT.yaml`。可以把多款产品放进 `PRODUCTS.catalog.example.yaml` 这种产品库文件，任务里只传产品名或 SKU：
 
 ```bash
@@ -161,6 +173,18 @@ python tools/decision_maker_finder.py \
   --output exports/decision-makers.json
 ```
 
+人工审核开发信草稿后，可用发送工具发出。默认只预览不发送，必须显式加 `--send` 且逐封确认；SMTP 凭证只通过环境变量传入（见 `templates/.env.example`）：
+
+```bash
+# 先预览（不发送）
+python tools/send_emails.py --input data/emails/send_list.csv
+
+# 审核无误后真正发送
+python tools/send_emails.py --input data/emails/send_list.csv --send
+```
+
+发送清单需包含 `to_email`、`subject`、`body` 列。工具会自动补退订行、跳过缺邮箱的行，并写发送日志。
+
 ## 报价导出
 
 安装 Python 依赖：
@@ -217,6 +241,7 @@ PDF 从 HTML 转换，需要本机存在 Chrome、Edge 或 WeasyPrint。
 | `tools/batch_prospect_pipeline.py` | `prospects.enriched.xlsx`、`scores.xlsx`、`email_drafts.xlsx`、`research_reports.json` |
 | `tools/decision_maker_finder.py` | 决策层线索 JSON |
 | `tools/render_quotation.py` | HTML / PDF / Excel 报价文件 |
+| `tools/send_emails.py` | 开发信发送（默认预览，需显式确认才发）和发送日志 |
 
 ## 项目结构
 
@@ -258,7 +283,6 @@ OK
 - Campaign 文件夹输出结构
 - 更多外贸行业模板
 - 多语言开发信参考
-- 可选 Apollo / Hunter 等 enrichment API 接入指南
 
 ## License
 
