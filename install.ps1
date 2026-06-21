@@ -15,6 +15,7 @@ Copy-Item -Path (Join-Path $RootDir "tools\scrapling_mcp_server.py") -Destinatio
 Copy-Item -Path (Join-Path $RootDir "tools\batch_prospect_pipeline.py") -Destination (Join-Path $ToolDir "batch_prospect_pipeline.py") -Force
 Copy-Item -Path (Join-Path $RootDir "tools\decision_maker_finder.py") -Destination (Join-Path $ToolDir "decision_maker_finder.py") -Force
 Copy-Item -Path (Join-Path $RootDir "tools\render_quotation.py") -Destination (Join-Path $ToolDir "render_quotation.py") -Force
+Copy-Item -Path (Join-Path $RootDir "tools\send_emails.py") -Destination (Join-Path $ToolDir "send_emails.py") -Force
 Copy-Item -Path (Join-Path $RootDir "tools\trade_utils.py") -Destination (Join-Path $ToolDir "trade_utils.py") -Force
 
 Write-Host "Installed trade skills to $SkillDir"

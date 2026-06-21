@@ -1,0 +1,64 @@
+# ============================================================
+# Apollo.io 客户发现配置示例
+# 用途：批量从 Apollo 公司库拉候选客户名单
+# 接口：POST https://api.apollo.io/api/v1/mixed_companies/search
+# 认证：API key 走 header X-Api-Key（无 Bearer 前缀）
+# 文档以官方为准：https://docs.apollo.io/reference/organization-search
+#   注意：Apollo 接口路径/字段历年有变动，且部分字段（如邮箱）
+#   消耗额外 credit。首次接入请用官方文档核对一次。
+#
+# 用法：
+#   1. export APOLLO_API_KEY="你的key"
+#   2. python3 tools/collect_prospects.py \
+#        --discovery templates/DISCOVERY.apollo.example.yaml \
+#        --product templates/PRODUCT.example.yaml \
+#        --output-dir exports/apollo-prospects
+# ============================================================
+
+collection_api:
+  provider: "apollo"
+  endpoint: "https://api.apollo.io/api/v1/mixed_companies/search"
+  method: "POST"
+  # Apollo 用 header X-Api-Key，scheme 留空（不要 Bearer 前缀）
+  api_key_env: "APOLLO_API_KEY"
+  auth_header: "X-Api-Key"
+  auth_scheme: ""
+  headers:
+    Content-Type: "application/json"
+    Cache-Control: "no-cache"
+  # POST 请求时这些会作为 JSON body 发出；{keyword}/{region}/{page} 自动替换
+  query_params:
+    q_organization_name: "{keyword}"
+    organization_locations: ["{region}"]
+    page: "{page}"
+    per_page: "{page_size}"
+  # Apollo 返回：{ "organizations": [ {name, website_url, primary_domain} ] }
+  response_mapping:
+    items_path: "organizations"
+    company_name: "name"
+    website: "website_url"
+    country: "country"
+    business_type: "industry"
+    source_url: "website_url"
+    email: "email"
+    phone: "phone"
+  pagination:
+    mode: "page"
+    page_param: "page"
+    page_size_param: "per_page"
+    page_size: 25
+    max_pages: 2
+  rate_limit:
+    requests_per_minute: 30
+  retry_policy:
+    max_attempts: 3
+    backoff_seconds: 2
+
+# collect_prospects 按「产品关键词 × default_regions」遍历调用 API，必填
+default_regions:
+  - "United States"
+  - "Germany"
+
+output_formats:
+  - "csv"
+  - "json"

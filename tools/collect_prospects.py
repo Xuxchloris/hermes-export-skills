@@ -115,11 +115,17 @@ def write_table_outputs(output_dir: Path, stem: str, rows: list[dict[str, Any]],
 
 def api_request(api: dict[str, Any], variables: dict[str, Any]) -> dict[str, Any]:
     method = api.get("method", "GET").upper()
-    endpoint = render_template(api.get("endpoint", ""), variables)
-    headers = dict(api.get("headers") or {})
     key_env = api.get("api_key_env") or ""
-    if key_env and os.environ.get(key_env):
-        headers[api.get("auth_header", "Authorization")] = f"{api.get('auth_scheme', 'Bearer')} {os.environ[key_env]}"
+    api_key = os.environ.get(key_env, "") if key_env else ""
+    # Expose {api_key} so it can be placed in the endpoint, query params, or headers.
+    variables = {**variables, "api_key": api_key}
+    endpoint = render_template(api.get("endpoint", ""), variables)
+    headers = render_template(dict(api.get("headers") or {}), variables)
+    auth_header = api.get("auth_header", "Authorization")
+    auth_scheme = str(api.get("auth_scheme", "Bearer")).strip()
+    if api_key and auth_header:
+        prefix = f"{auth_scheme} " if auth_scheme else ""
+        headers[auth_header] = f"{prefix}{api_key}".strip()
 
     params = render_template(api.get("query_params") or {}, variables)
     body = None

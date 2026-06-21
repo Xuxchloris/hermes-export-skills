@@ -1,0 +1,42 @@
+# ============================================================
+# Hunter.io 联系人补全配置示例
+# 用途：背调/找决策人时，调用 Hunter Domain Search 拿公司邮箱
+# 接口：GET https://api.hunter.io/v2/domain-search
+# 认证：API key 走 query 参数 ?api_key=xxx（不是 header）
+# 文档以官方为准：https://hunter.io/api-documentation/v2
+#
+# 用法：
+#   1. 在环境变量里设 HUNTER_API_KEY（不要写进本文件）
+#      export HUNTER_API_KEY="你的key"
+#   2. python3 tools/decision_maker_finder.py \
+#        --website https://example.com \
+#        --company-name "Example Inc" \
+#        --discovery templates/DISCOVERY.hunter.example.yaml \
+#        --output exports/dm.json
+# ============================================================
+
+contact_enrichment_api:
+  provider: "hunter"
+  endpoint: "https://api.hunter.io/v2/domain-search"
+  method: "GET"
+  # Hunter 的 key 走 query 参数，所以 auth_header 留空，避免注入多余 header
+  api_key_env: "HUNTER_API_KEY"
+  auth_header: ""
+  auth_scheme: ""
+  # {api_key} 和 {domain} 会被工具自动替换为真实值
+  query_params:
+    domain: "{domain}"
+    api_key: "{api_key}"
+  # Hunter 返回结构：{ "data": { "emails": [ {value, first_name, last_name, position} ] } }
+  response_mapping:
+    items_path: "data.emails"
+    name: "first_name"
+    role: "position"
+    email: "value"
+    phone: "phone_number"
+    source_url: "source"
+  rate_limit:
+    requests_per_minute: 15
+  retry_policy:
+    max_attempts: 3
+    backoff_seconds: 2

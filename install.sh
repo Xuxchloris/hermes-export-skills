@@ -16,6 +16,7 @@ cp "$ROOT_DIR/tools/scrapling_mcp_server.py" "$TOOL_DIR/scrapling_mcp_server.py"
 cp "$ROOT_DIR/tools/batch_prospect_pipeline.py" "$TOOL_DIR/batch_prospect_pipeline.py"
 cp "$ROOT_DIR/tools/decision_maker_finder.py" "$TOOL_DIR/decision_maker_finder.py"
 cp "$ROOT_DIR/tools/render_quotation.py" "$TOOL_DIR/render_quotation.py"
+cp "$ROOT_DIR/tools/send_emails.py" "$TOOL_DIR/send_emails.py"
 cp "$ROOT_DIR/tools/trade_utils.py" "$TOOL_DIR/trade_utils.py"
 
 echo "Installed trade skills to $SKILL_DIR"

@@ -167,13 +167,17 @@ def contact_api_candidates(discovery_path: Path | None, website: str, company_na
 
     parsed = urlparse(website)
     domain = parsed.netloc or Path(parsed.path).stem
-    variables = {"domain": domain, "company_name": company_name}
+    key_env = api.get("api_key_env") or ""
+    api_key = os.environ.get(key_env, "") if key_env else ""
+    variables = {"domain": domain, "company_name": company_name, "api_key": api_key}
     method = api.get("method", "GET").upper()
     endpoint = render_template(api.get("endpoint", ""), variables)
-    headers = dict(api.get("headers") or {})
-    key_env = api.get("api_key_env") or ""
-    if key_env and os.environ.get(key_env):
-        headers[api.get("auth_header", "Authorization")] = f"{api.get('auth_scheme', 'Bearer')} {os.environ[key_env]}"
+    headers = render_template(dict(api.get("headers") or {}), variables)
+    auth_header = api.get("auth_header", "Authorization")
+    auth_scheme = str(api.get("auth_scheme", "Bearer")).strip()
+    if api_key and auth_header:
+        prefix = f"{auth_scheme} " if auth_scheme else ""
+        headers[auth_header] = f"{prefix}{api_key}".strip()
 
     params = render_template(api.get("query_params") or {}, variables)
     body = None
