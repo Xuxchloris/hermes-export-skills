@@ -9,8 +9,8 @@ from pathlib import Path
 import re
 import time
 from typing import Any
-from urllib.parse import urljoin, urlparse
-from urllib.request import ProxyHandler, Request, build_opener, urlopen
+from urllib.parse import unquote, urljoin, urlparse
+from urllib.request import ProxyHandler, Request, build_opener, url2pathname, urlopen
 
 import yaml
 from openpyxl import Workbook, load_workbook
@@ -169,6 +169,13 @@ def scrapling_fetch(url: str, scraping: dict[str, Any]) -> str:
 
 def fetch_url(url: str, scraping: dict[str, Any] | None = None, timeout: int = 12) -> str:
     scraping = scraping or {}
+
+    # Local files are read directly; they never need a scraping engine or network.
+    if urlparse(url).scheme == "file":
+        return Path(url2pathname(unquote(urlparse(url).path))).read_text(
+            encoding="utf-8", errors="replace"
+        )
+
     engine = scraping.get("engine", "scrapling-fetcher")
     if engine.startswith("scrapling-"):
         return scrapling_fetch(url, scraping)

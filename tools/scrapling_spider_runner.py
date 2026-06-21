@@ -5,7 +5,27 @@ from pathlib import Path
 from typing import Any, AsyncGenerator
 from urllib.parse import urlparse
 
-from scrapling.spiders import Request, Response, Spider
+try:  # Native spider mode needs scrapling; other discovery modes do not.
+    from scrapling.spiders import Request, Response, Spider
+
+    _SCRAPLING_IMPORT_ERROR: ImportError | None = None
+except ImportError as exc:  # pragma: no cover - exercised only without scrapling.
+    _SCRAPLING_IMPORT_ERROR = exc
+    Request = None  # type: ignore[assignment]
+    Response = None  # type: ignore[assignment]
+
+    class Spider:  # type: ignore[no-redef]
+        """Placeholder base used when scrapling is not installed.
+
+        Importing this module stays cheap so search-task and API discovery
+        modes keep working; only native spider mode requires scrapling.
+        """
+
+        def __init__(self, *args: Any, **kwargs: Any) -> None:
+            raise ImportError(
+                "Native Scrapling spider mode requires the 'scrapling' package. "
+                "Install it with: python -m pip install -r requirements-scrapling.txt"
+            ) from _SCRAPLING_IMPORT_ERROR
 
 try:  # Support both `python tools/x.py` and `from tools.x import ...`.
     from .scrapling_prospect_spider import SourceSeed, _product_terms, _seed_entries, _source_matches_product
