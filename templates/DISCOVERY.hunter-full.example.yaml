@@ -1,0 +1,94 @@
+# ============================================================
+# Hunter.io 全链路配置（一个 key 跑通：找客户 + 补邮箱）
+# 只需设置一个环境变量 HUNTER_API_KEY
+#
+# 链路：
+#   1. collection_api      → Discover   找公司名单（域名+公司名）
+#   2. contact_enrichment_api → Domain Search  给每个域名补邮箱
+#
+# 接口认证：Hunter 所有 endpoint 的 key 都走 query 参数 ?api_key=
+# 文档以官方为准：https://hunter.io/api-documentation/v2
+#
+# 用法：
+#   export HUNTER_API_KEY="你的key"
+#   # 第一步：找公司
+#   python3 tools/collect_prospects.py \
+#     --discovery templates/DISCOVERY.hunter-full.example.yaml \
+#     --product templates/PRODUCT.example.yaml \
+#     --output-dir exports/hunter-prospects
+#   # 第二步：对某公司域名补邮箱/决策人
+#   python3 tools/decision_maker_finder.py \
+#     --website https://某公司域名 \
+#     --discovery templates/DISCOVERY.hunter-full.example.yaml \
+#     --output exports/dm.json
+# ============================================================
+
+# ---------- 第一步：客户发现（Discover，POST）----------
+collection_api:
+  provider: "hunter"
+  # key 走 query 参数，直接写进 endpoint；{api_key} 会被自动替换
+  endpoint: "https://api.hunter.io/v2/discover?api_key={api_key}"
+  method: "POST"
+  api_key_env: "HUNTER_API_KEY"
+  auth_header: ""        # Hunter 不用 header 认证，留空
+  auth_scheme: ""
+  headers:
+    Content-Type: "application/json"
+  # POST 时这个整体作为 JSON body 发出。这里用 Discover 的 AI 自然语言模式，
+  # {keyword}/{region} 会被「产品关键词 × default_regions」自动替换。
+  query_params:
+    query: "{keyword} suppliers and distributors in {region}"
+  # Discover 返回：{ "data": [ {domain, organization, emails_count} ] }
+  response_mapping:
+    items_path: "data"
+    company_name: "organization"
+    website: "domain"
+    country: "country"          # Discover 不返回，自动回退到当前 region
+    business_type: "business_type"
+    source_url: "domain"
+    email: "email"              # Discover 不给邮箱，留空，由第二步补
+    phone: "phone"
+  pagination:
+    mode: "none"
+    page_size: 100
+    max_pages: 1
+  rate_limit:
+    requests_per_minute: 15
+  retry_policy:
+    max_attempts: 3
+    backoff_seconds: 2
+
+# collect_prospects 按「产品关键词 × default_regions」遍历调 Discover，必填
+default_regions:
+  - "United States"
+  - "Germany"
+
+output_formats:
+  - "csv"
+  - "json"
+
+# ---------- 第二步：联系人补全（Domain Search，GET）----------
+contact_enrichment_api:
+  provider: "hunter"
+  endpoint: "https://api.hunter.io/v2/domain-search"
+  method: "GET"
+  api_key_env: "HUNTER_API_KEY"
+  auth_header: ""        # key 走 query 参数
+  auth_scheme: ""
+  # {domain} 来自要补全的公司，{api_key} 自动替换
+  query_params:
+    domain: "{domain}"
+    api_key: "{api_key}"
+  # Domain Search 返回：{ "data": { "emails": [ {value, first_name, position} ] } }
+  response_mapping:
+    items_path: "data.emails"
+    name: "first_name"
+    role: "position"
+    email: "value"
+    phone: "phone_number"
+    source_url: "source"
+  rate_limit:
+    requests_per_minute: 15
+  retry_policy:
+    max_attempts: 3
+    backoff_seconds: 2
